@@ -16,12 +16,6 @@ class OpenApiTest extends TestCase
 
         $openApi = $factory->createFromUrl(self::OPENAPI_FILENAME);
 
-        $this->assertInstanceOf(JsonNode::class, $openApi->servers[0]);
-
-        $this->assertNotInstanceOf(Server::class, $openApi->servers[0]);
-
-        $openApi->resolveReferences(ReferenceResolver::RESOLVE_EXTERNAL);
-
         $this->assertInstanceOf(OpenApi::class, $openApi);
 
         $this->assertInstanceOf(Info::class, $openApi->info);

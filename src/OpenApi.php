@@ -28,14 +28,8 @@ class OpenApi extends AbstractTypedJsonDocument
 
     private static $validator_; ///< Validator
 
-    public function __construct(
-        $data,
-        ?self $ownerDocument = null,
-        ?string $jsonPtr = null,
-        ?UriInterface $baseUri = null
-    ) {
-        parent::__construct($data, $ownerDocument, $jsonPtr, $baseUri);
-
+    public static function getValidator(): Validator
+    {
         if (!isset(self::$validator_)) {
             self::$validator_ = new Validator();
 
@@ -49,9 +43,26 @@ class OpenApi extends AbstractTypedJsonDocument
             }
         }
 
-        $validationResult = self::$validator_->validate(
-            $this->createDeepCopy()
-                ->resolveReferences(ReferenceResolver::RESOLVE_EXTERNAL),
+        return self::$validator_;
+    }
+
+    public function __construct(
+        $data,
+        ?self $ownerDocument = null,
+        ?string $jsonPtr = null,
+        ?UriInterface $baseUri = null
+    ) {
+        parent::__construct($data, $ownerDocument, $jsonPtr, $baseUri);
+
+        $this->resolveReferences(ReferenceResolver::RESOLVE_EXTERNAL);
+
+        $this->validate();
+    }
+
+    private function validate(): void
+    {
+        $validationResult = self::getValidator()->validate(
+            $this,
             self::VERSION_URI_PREFIX
             . substr($this->openapi, 0, strrpos($this->openapi, '.'))
         );
@@ -62,9 +73,12 @@ class OpenApi extends AbstractTypedJsonDocument
              *  OpenApi schema. */
             throw new DataValidationFailed(
                 json_encode($error->data()),
-                $baseUri,
+                $this->getBaseUri(),
                 null,
-                json_encode((new ErrorFormatter())->format($error), JSON_PRETTY_PRINT)
+                json_encode(
+                    (new ErrorFormatter())->format($error),
+                    JSON_PRETTY_PRINT
+                )
             );
         }
     }
