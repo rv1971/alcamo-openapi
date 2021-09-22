@@ -2,7 +2,7 @@
 
 namespace alcamo\openapi;
 
-use alcamo\json\JsonNode;
+use alcamo\json\{JsonNode, ReferenceResolver};
 use PHPUnit\Framework\TestCase;
 
 class OpenApiTest extends TestCase
@@ -20,7 +20,7 @@ class OpenApiTest extends TestCase
 
         $this->assertNotInstanceOf(Server::class, $openApi->servers[0]);
 
-        $openApi->resolveReferences(OpenApi::RESOLVE_EXTERNAL);
+        $openApi->resolveReferences(ReferenceResolver::RESOLVE_EXTERNAL);
 
         $this->assertInstanceOf(OpenApi::class, $openApi);
 
