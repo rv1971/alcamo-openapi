@@ -2,6 +2,7 @@
 
 namespace alcamo\openapi;
 
+use alcamo\json\JsonNode;
 use PHPUnit\Framework\TestCase;
 
 class OpenApiTest extends TestCase
@@ -11,9 +12,15 @@ class OpenApiTest extends TestCase
 
     public function testConstruct()
     {
-        $jsonText = file_get_contents(self::OPENAPI_FILENAME);
+        $factory = new OpenApiFactory();
 
-        $openApi = OpenApi::newFromJsonText($jsonText);
+        $openApi = $factory->createFromUrl(self::OPENAPI_FILENAME);
+
+        $this->assertInstanceOf(JsonNode::class, $openApi->servers[0]);
+
+        $this->assertNotInstanceOf(Server::class, $openApi->servers[0]);
+
+        $openApi->resolveReferences(OpenApi::RESOLVE_EXTERNAL);
 
         $this->assertInstanceOf(OpenApi::class, $openApi);
 
@@ -26,5 +33,7 @@ class OpenApiTest extends TestCase
         $this->assertInstanceOf(License::class, $openApi->info->license);
 
         $this->assertInstanceOf(Server::class, $openApi->servers[0]);
+
+        $this->assertInstanceOf(Server::class, $openApi->servers[1]);
     }
 }

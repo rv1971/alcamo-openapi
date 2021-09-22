@@ -3,9 +3,27 @@
     "description": "OpenAPI schema document",
     "keywords": [ "OpenAPI" ],
     "license": "Apache-2.0",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/rv1971/json-schema"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/rv1971/string"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/rv1971/uri"
+        }
+    ],
     "require": {
         "php": "7.3 - 8.0",
-        "alcamo/json": "dev-master"
+        "alcamo/json": "dev-master",
+        "opis/string": "dev-master",
+        "opis/uri": "dev-master",
+        "opis/json-schema": "dev-master",
+        "sebastian/exporter": "^4.0"
     },
     "autoload": {
 	"psr-4": {

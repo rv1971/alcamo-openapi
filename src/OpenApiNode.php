@@ -2,7 +2,9 @@
 
 namespace alcamo\openapi;
 
-class OpenApiNode extends AbstractTypedJsonNode
+use alcamo\json\JsonNode;
+
+class OpenApiNode extends JsonNode
 {
     public const CLASS_MAP = [ '*' => __CLASS__ ];
 }
