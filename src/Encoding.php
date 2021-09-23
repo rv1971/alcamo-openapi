@@ -2,9 +2,9 @@
 
 namespace alcamo\openapi;
 
-class Paths extends OpenApiNode
+class Encoding extends OpenApiNode
 {
     public const CLASS_MAP = [
-        '*' => PathItem::class,
+        'headers'   => Headers::class
     ];
 }

@@ -2,6 +2,6 @@
 
 namespace alcamo\openapi;
 
-class Security extends OpenApiNode
+class OAuthFlow extends OpenApiNode
 {
 }

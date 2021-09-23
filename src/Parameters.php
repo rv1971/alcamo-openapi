@@ -2,9 +2,9 @@
 
 namespace alcamo\openapi;
 
-class Paths extends OpenApiNode
+class Parameters extends OpenApiNode
 {
     public const CLASS_MAP = [
-        '*' => PathItem::class,
+        '*' => Parameter::class
     ];
 }

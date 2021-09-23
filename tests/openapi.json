@@ -38,7 +38,7 @@
             "name": "store",
             "description": "Access to Petstore orders"
         },
-        { "$ref": "tags.json#/user" }        
+        { "$ref": "tags.json#/user" }
     ],
     "paths": {
         "/pet": { "$ref": "paths/pet.json" },
@@ -90,6 +90,9 @@
                                     "items": {
                                         "$ref": "#/components/schemas/Pet"
                                     }
+                                },
+                                "examples": {
+                                    "$ref": "components/schemas/Pet.examples.json"
                                 }
                             }
                         }

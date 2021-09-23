@@ -17,11 +17,11 @@ class OpenApi extends AbstractTypedJsonDocument
 
     public const CLASS_MAP = [
         'info'         => Info::class,
-        'servers'      => Server::class,
+        'servers'      => [ '*' => Server::class ],
         'paths'        => Paths::class,
         'components'   => Components::class,
-        'security'     => Security::class,
-        'tags'         => Tag::class,
+        'security'     => [ '*' => SecurityRequirement::class ],
+        'tags'         => [ '*' => Tag::class ],
         'externalDocs' => ExternalDocs::class,
         '*'            => OpenApiNode::class
     ];
@@ -57,6 +57,15 @@ class OpenApi extends AbstractTypedJsonDocument
         $this->resolveReferences(ReferenceResolver::RESOLVE_EXTERNAL);
 
         $this->validate();
+    }
+
+    public function resolveExternalValues()
+    {
+        $walker =
+            new RecursiveWalker($this, RecursiveWalker::JSON_OBJECTS_ONLY);
+
+        foreach ($walker as $object) {
+        }
     }
 
     private function validate(): void

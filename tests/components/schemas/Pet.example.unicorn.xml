@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<example>
+  <name>My favorite unicorn</name>
+  <photoUrls>
+    <photoUrl>http://www.unicorn.com/example1.jpeg</photoUrl>
+    <photoUrl>http://www.unicorn.com/example2.jpeg</photoUrl>
+  </photoUrls>
+</example>

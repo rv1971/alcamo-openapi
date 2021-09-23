@@ -1,0 +1,19 @@
+{
+    "inline": {
+        "summary": "Crocodile",
+        "value": {
+            "name": "My crocodile",
+            "photoUrls": [
+                "https://www.example.org/crocodile"
+            ]
+        }
+    },
+    "external": {
+        "summary": "Elephant",
+        "externalValue": "Pet.example.elephant.json"
+    },
+    "external-xml": {
+        "summary": "Unicorn",
+        "externalValue": "Pet.example.unicorn.xml"
+    }
+}

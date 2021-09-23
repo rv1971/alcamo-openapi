@@ -2,9 +2,9 @@
 
 namespace alcamo\openapi;
 
-class Paths extends OpenApiNode
+class Callback extends OpenApiNode
 {
     public const CLASS_MAP = [
-        '*' => PathItem::class,
+        '*' => PathItem::class
     ];
 }

@@ -1,0 +1,8 @@
+{
+    "id": 42,
+    "name": "My elephant",
+    "photoUrls": [
+        "https://www.example.org/elephant-1.png",
+        "https://www.example.org/elephant-2.jpeg"
+    ]
+}
