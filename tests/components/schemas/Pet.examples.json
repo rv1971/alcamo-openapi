@@ -12,7 +12,7 @@
         "summary": "Elephant",
         "externalValue": "Pet.example.elephant.json"
     },
-    "external-xml": {
+    "external_xml": {
         "summary": "Unicorn",
         "externalValue": "Pet.example.unicorn.xml"
     }

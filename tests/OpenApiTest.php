@@ -2,7 +2,6 @@
 
 namespace alcamo\openapi;
 
-use alcamo\json\{JsonNode, ReferenceResolver};
 use PHPUnit\Framework\TestCase;
 
 class OpenApiTest extends TestCase

@@ -3,7 +3,12 @@
 namespace alcamo\openapi;
 
 use alcamo\exception\DataValidationFailed;
-use alcamo\json\{JsonDocument, JsonDocumentFactory, ReferenceResolver};
+use alcamo\json\{
+    JsonDocument,
+    JsonDocumentFactory,
+    RecursiveWalker,
+    ReferenceResolver
+};
 use Opis\JsonSchema\{Schema, Validator};
 use Opis\JsonSchema\Errors\ErrorFormatter;
 use Psr\Http\Message\UriInterface;
@@ -59,12 +64,15 @@ class OpenApi extends AbstractTypedJsonDocument
         $this->validate();
     }
 
-    public function resolveExternalValues()
+    public function resolveExternalValues(): void
     {
         $walker =
             new RecursiveWalker($this, RecursiveWalker::JSON_OBJECTS_ONLY);
 
         foreach ($walker as $object) {
+            if (isset($object->externalValue)) {
+                $object->resolveExternalValue();
+            }
         }
     }
 
