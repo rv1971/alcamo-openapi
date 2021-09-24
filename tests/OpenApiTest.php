@@ -2,6 +2,8 @@
 
 namespace alcamo\openapi;
 
+use alcamo\exception\{AbsoluteUriNeeded, DataValidationFailed};
+use alcamo\ietf\Uri;
 use PHPUnit\Framework\TestCase;
 
 class OpenApiTest extends TestCase
@@ -13,7 +15,9 @@ class OpenApiTest extends TestCase
     {
         $factory = new OpenApiFactory();
 
-        $openApi = $factory->createFromUrl(self::OPENAPI_FILENAME);
+        $openApi = $factory->createFromUrl(
+            Uri::newFromFilesystemPath(self::OPENAPI_FILENAME)
+        );
 
         $this->assertInstanceOf(OpenApi::class, $openApi);
 
@@ -28,5 +32,19 @@ class OpenApiTest extends TestCase
         $this->assertInstanceOf(Server::class, $openApi->servers[0]);
 
         $this->assertInstanceOf(Server::class, $openApi->servers[1]);
+    }
+
+    public function testConstructUriException()
+    {
+        $factory = new OpenApiFactory();
+
+        $this->expectException(AbsoluteUriNeeded::class);
+        $this->expectExceptionMessage(
+            'Relative URI "'
+            . self::OPENAPI_FILENAME
+            . '" given where absolute URI is needed'
+        );
+
+        $factory->createFromUrl(self::OPENAPI_FILENAME);
     }
 }

@@ -1,19 +1,25 @@
 {
     "inline": {
         "summary": "Crocodile",
-        "value": {
-            "name": "My crocodile",
-            "photoUrls": [
-                "https://www.example.org/crocodile"
-            ]
-        }
+        "value": [
+            {
+                "name": "My crocodile",
+                "photoUrls": [
+                    "https://www.example.org/crocodile"
+                ]
+            }
+        ]
+    },
+    "inline_xml": {
+        "summary": "Dragons",
+        "value": "<?xml version='1.0' encoding='utf-8'?><example><name>My sweet dragon</name><photoUrls><photoUrl>http://www.dragon.example.info</photoUrl></photoUrls></example>"
     },
     "external": {
-        "summary": "Elephant",
-        "externalValue": "Pet.example.elephant.json"
+        "summary": "Elephants",
+        "externalValue": "Pet.example.elephants.json"
     },
     "external_xml": {
-        "summary": "Unicorn",
-        "externalValue": "Pet.example.unicorn.xml"
+        "summary": "Unicorns",
+        "externalValue": "Pet.example.unicorns.xml"
     }
 }

@@ -2,7 +2,8 @@
 
 namespace alcamo\openapi;
 
-use alcamo\exception\DataValidationFailed;
+use alcamo\exception\{AbsoluteUriNeeded, DataValidationFailed};
+use alcamo\ietf\Uri;
 use alcamo\json\{
     JsonDocument,
     JsonDocumentFactory,
@@ -33,6 +34,8 @@ class OpenApi extends AbstractTypedJsonDocument
 
     private static $validator_; ///< Validator
 
+    private $localValidator_; ///< Validator
+
     public static function getValidator(): Validator
     {
         if (!isset(self::$validator_)) {
@@ -57,11 +60,22 @@ class OpenApi extends AbstractTypedJsonDocument
         ?string $jsonPtr = null,
         ?UriInterface $baseUri = null
     ) {
+        if (!Uri::isAbsolute($baseUri)) {
+            throw new AbsoluteUriNeeded($baseUri);
+        }
+
         parent::__construct($data, $ownerDocument, $jsonPtr, $baseUri);
+
+        $this->localValidator_ = new Validator();
+
+        $this->localValidator_->resolver()
+            ->registerRaw($this, $this->getBaseUri());
 
         $this->resolveReferences(ReferenceResolver::RESOLVE_EXTERNAL);
 
         $this->validate();
+
+        $this->validateExamples();
     }
 
     public function resolveExternalValues(): void
@@ -69,14 +83,14 @@ class OpenApi extends AbstractTypedJsonDocument
         $walker =
             new RecursiveWalker($this, RecursiveWalker::JSON_OBJECTS_ONLY);
 
-        foreach ($walker as $object) {
-            if (isset($object->externalValue)) {
-                $object->resolveExternalValue();
+        foreach ($walker as $node) {
+            if (isset($node->externalValue)) {
+                $node->resolveExternalValue();
             }
         }
     }
 
-    private function validate(): void
+    protected function validate(): void
     {
         $validationResult = self::getValidator()->validate(
             $this,
@@ -92,7 +106,80 @@ class OpenApi extends AbstractTypedJsonDocument
                 json_encode($error->data()),
                 $this->getBaseUri(),
                 null,
-                json_encode(
+                '; ' . json_encode(
+                    (new ErrorFormatter())->format($error),
+                    JSON_PRETTY_PRINT
+                )
+            );
+        }
+    }
+
+    protected function validateExamples(): void
+    {
+        $walker =
+            new RecursiveWalker($this, RecursiveWalker::JSON_OBJECTS_ONLY);
+
+        foreach ($walker as $node) {
+            if (isset($node->example)) {
+                $this->validateExample(
+                    $node->example,
+                    $node->schema ?? $node,
+                    $node->getUri('example')
+                );
+            } elseif (isset($node->examples) && isset($node->schema)) {
+                foreach ($node->examples as $example) {
+                    $mediaType = $example->getExternalValueMediaType();
+
+                    // do not validate external values other than JSON
+                    if (
+                        !isset($mediaType) || $mediaType == 'application/json'
+                    ) {
+                        $this->validateExample(
+                            $example->getValue(),
+                            $node->schema,
+                            $example->getUri(
+                                isset($example->value)
+                                ? 'value'
+                                : 'externalValue'
+                            )
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    protected function validateExample(
+        $value,
+        OpenApiNode $schema,
+        string $uri
+    ) {
+        $schemaId = (string)$schema->getUri();
+
+        $validationResult =
+            $this->localValidator_->validate($value, $schemaId);
+
+        if ($validationResult->hasError()) {
+            $error = $validationResult->error();
+
+            /** Ignore an error on a string when expecting an object or array
+             * because the string is then likely to be the serialization of
+             * non-JSON data. */
+            if (
+                is_string($value)
+                && $error->keyword() == 'type'
+                && in_array($error->args()['expected'], ['array', 'object'])
+            ) {
+                return;
+            }
+
+            /** @throw alcamo::exception::DataValidationFailed if an example
+             *  is not valid. */
+            throw new DataValidationFailed(
+                json_encode($error->data()),
+                $uri,
+                null,
+                '; ' . json_encode(
                     (new ErrorFormatter())->format($error),
                     JSON_PRETTY_PRINT
                 )

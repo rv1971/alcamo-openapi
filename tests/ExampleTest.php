@@ -2,6 +2,7 @@
 
 namespace alcamo\openapi;
 
+use alcamo\ietf\Uri;
 use PHPUnit\Framework\TestCase;
 
 class ExampleTest extends TestCase
@@ -13,14 +14,19 @@ class ExampleTest extends TestCase
     {
         $factory = new OpenApiFactory();
 
-        $openApi = $factory->createFromUrl(self::OPENAPI_FILENAME);
+        $openApi = $factory->createFromUrl(
+            Uri::newFromFilesystemPath(self::OPENAPI_FILENAME)
+        );
 
         $examples = $openApi->paths->{'/pet/findByStatus'}
         ->get->responses->{'200'}->content->{'application/json'}->examples;
 
         $this->assertInstanceOf(Examples::class, $examples);
 
-        $this->assertInstanceOf(OpenApiNode::class, $examples->inline->value);
+        $this->assertInstanceOf(
+            OpenApiNode::class,
+            $examples->inline->value[0]
+        );
 
         $this->assertIsString($examples->external->externalValue);
 
@@ -30,9 +36,15 @@ class ExampleTest extends TestCase
 
         $this->assertFalse(isset($examples->external->externalValue));
 
-        $this->assertInstanceOf(OpenApiNode::class, $examples->external->value);
+        $this->assertInstanceOf(
+            OpenApiNode::class,
+            $examples->external->value[0]
+        );
 
-        $this->assertEquals('My elephant', $examples->external->value->name);
+        $this->assertEquals(
+            'Elephant A',
+            $examples->external->value[0]->name
+        );
 
         $this->assertFalse(isset($examples->external_xml->externalValue));
 
@@ -48,7 +60,7 @@ class ExampleTest extends TestCase
 
         $this->assertEquals(
             dirname($examples->external_xml->getBaseUri())
-            . DIRECTORY_SEPARATOR . 'Pet.example.unicorn.xml',
+            . DIRECTORY_SEPARATOR . 'Pet.example.unicorns.xml',
             $examples->external_xml->getExternalValueUrl()
         );
     }
