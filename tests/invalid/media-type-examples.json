@@ -1,0 +1,40 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "Invalid OpenAPI document",
+        "version": "1.0.0"
+    },
+    "paths": {
+    },
+    "components": {
+        "schemas": {
+            "Foo": {
+                "type": "array",
+                "items": {
+                    "type": "number"
+                }
+            }
+        },
+        "requestBodies": {
+            "foo": {
+                "content": {
+                    "application/json": {
+                        "schema": { "$ref": "#/components/schemas/Foo" },
+                        "examples": {
+                            "foo": { "$ref": "#/components/examples/foo" },
+                            "bar": { "$ref": "#/components/examples/bar" }
+                        }
+                    }
+                }
+            }
+        },
+        "examples": {
+            "foo": {
+                "value": [ 42, 43, 44 ]
+            },
+            "bar": {
+                "value": [ 42, "43", 44 ]
+            }
+        }
+    }
+}

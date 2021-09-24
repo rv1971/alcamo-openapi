@@ -11,6 +11,9 @@ class OpenApiTest extends TestCase
     public const OPENAPI_FILENAME =
         __DIR__ . DIRECTORY_SEPARATOR . 'openapi.json';
 
+    public const OPENAPI_INVALID_DIR =
+        __DIR__ . DIRECTORY_SEPARATOR . 'invalid' . DIRECTORY_SEPARATOR;
+
     public function testConstruct()
     {
         $factory = new OpenApiFactory();
@@ -46,5 +49,94 @@ class OpenApiTest extends TestCase
         );
 
         $factory->createFromUrl(self::OPENAPI_FILENAME);
+    }
+
+    public function testMinimal()
+    {
+        $factory = new OpenApiFactory();
+
+        $openApi = $factory->createFromUrl(
+            Uri::newFromFilesystemPath(
+                __DIR__ . DIRECTORY_SEPARATOR . 'openapi-minimal.json'
+            )
+        );
+
+        $this->assertInstanceOf(OpenApi::class, $openApi);
+    }
+
+    public function testInvalidOpenApiVersion()
+    {
+        $this->expectException(\RuntimeException::class);
+
+        $this->createFromUrl(
+            self::OPENAPI_INVALID_DIR . 'openapi-version.json'
+        );
+    }
+
+    public function testInvalidInfoVersion()
+    {
+        $this->expectException(DataValidationFailed::class);
+        $this->expectExceptionMessage(
+            "The data (integer) must match the type: string"
+        );
+
+        $this->createFromUrl(
+            self::OPENAPI_INVALID_DIR . 'info-version.json'
+        );
+    }
+
+    public function testInvalidSchemaExample()
+    {
+        $this->expectException(DataValidationFailed::class);
+        $this->expectExceptionMessage(
+            "The data (array) must match the type: object"
+        );
+
+        $this->createFromUrl(
+            self::OPENAPI_INVALID_DIR . 'schema-example.json'
+        );
+    }
+
+    public function testInvalidMediaTypeExample()
+    {
+        $this->expectException(DataValidationFailed::class);
+        $this->expectExceptionMessage(
+            "The required properties (baz) are missing"
+        );
+
+        $doc = $this->createFromUrl(
+            self::OPENAPI_INVALID_DIR . 'media-type-example.json'
+        );
+    }
+
+    public function testInvalidMediaTypeExamples()
+    {
+        $this->expectException(DataValidationFailed::class);
+        $this->expectExceptionMessage(
+            "The data (string) must match the type: number"
+        );
+
+        $doc = $this->createFromUrl(
+            self::OPENAPI_INVALID_DIR . 'media-type-examples.json'
+        );
+    }
+
+    public function testInvalidMediaTypeExternalExamples()
+    {
+        $this->expectException(DataValidationFailed::class);
+        $this->expectExceptionMessage(
+            "The data (string) must match the type: boolean"
+        );
+
+        $doc = $this->createFromUrl(
+            self::OPENAPI_INVALID_DIR . 'media-type-external-examples.json'
+        );
+    }
+
+    private function createFromUrl($path)
+    {
+        return (new OpenApiFactory())->createFromUrl(
+            Uri::newFromFilesystemPath($path)
+        );
     }
 }

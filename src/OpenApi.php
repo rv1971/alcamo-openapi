@@ -7,6 +7,7 @@ use alcamo\ietf\Uri;
 use alcamo\json\{
     JsonDocument,
     JsonDocumentFactory,
+    JsonNode,
     RecursiveWalker,
     ReferenceResolver
 };
@@ -128,6 +129,11 @@ class OpenApi extends AbstractTypedJsonDocument
                 );
             } elseif (isset($node->examples) && isset($node->schema)) {
                 foreach ($node->examples as $example) {
+                    if (isset($example->{'$ref'})) {
+                        $example = $example->createDeepCopy()
+                            ->resolveReferences();
+                    }
+
                     $mediaType = $example->getExternalValueMediaType();
 
                     // do not validate external values other than JSON
@@ -149,9 +155,11 @@ class OpenApi extends AbstractTypedJsonDocument
         }
     }
 
+    /* The second argument may be a reference object, in which case it is
+     * provided as a JsonNode and not as an OpenApiNode. */
     protected function validateExample(
         $value,
-        OpenApiNode $schema,
+        JsonNode $schema,
         string $uri
     ) {
         $schemaId = (string)$schema->getUri();
@@ -165,12 +173,17 @@ class OpenApi extends AbstractTypedJsonDocument
             /** Ignore an error on a string when expecting an object or array
              * because the string is then likely to be the serialization of
              * non-JSON data. */
-            if (
-                is_string($value)
-                && $error->keyword() == 'type'
-                && in_array($error->args()['expected'], ['array', 'object'])
-            ) {
-                return;
+            if (is_string($value)) {
+                while ($error->keyword() == '$ref') {
+                    $error = $error->subErrors()[0];
+                }
+
+                if (
+                    $error->keyword() == 'type'
+                    && in_array($error->args()['expected'], ['array', 'object'])
+                ) {
+                    return;
+                }
             }
 
             /** @throw alcamo::exception::DataValidationFailed if an example
@@ -180,7 +193,7 @@ class OpenApi extends AbstractTypedJsonDocument
                 $uri,
                 null,
                 '; ' . json_encode(
-                    (new ErrorFormatter())->format($error),
+                    (new ErrorFormatter())->formatOutput($error, 'verbose'),
                     JSON_PRETTY_PRINT
                 )
             );

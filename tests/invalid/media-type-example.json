@@ -1,0 +1,35 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "Invalid OpenAPI document",
+        "version": "1.0.0"
+    },
+    "paths": {
+    },
+    "components": {
+        "schemas": {
+            "Baz": {
+                "type": "object",
+                "required": [ "baz" ]
+            }
+        },
+        "requestBodies": {
+            "foo": {
+                "content": {
+                    "application/json": {
+                        "schema": { "$ref": "#/components/schemas/Baz" },
+                        "example": { "baz": "Lorem ipsum" }
+                    }
+                }
+            },
+            "bar": {
+                "content": {
+                    "application/json": {
+                        "schema": { "$ref": "#/components/schemas/Baz" },
+                        "example": { "buzz": "dolor" }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,9 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "Invalid OpenAPI document",
+        "version": 42
+    },
+    "paths": {
+    }
+}

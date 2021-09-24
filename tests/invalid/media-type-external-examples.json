@@ -1,0 +1,45 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "Invalid OpenAPI document",
+        "version": "1.0.0"
+    },
+    "paths": {
+    },
+    "components": {
+        "schemas": {
+            "Foo": { "$ref": "#/components/schemas/Bar" },
+            "Bar": {
+                "type": "object",
+                "properties": {
+                    "qux": {
+                        "type": "boolean"
+                    }
+                }
+            }
+        },
+        "requestBodies": {
+            "foo": {
+                "content": {
+                    "application/json": {
+                        "schema": { "$ref": "#/components/schemas/Foo" },
+                        "examples": {
+                            "foo": {
+                                "externalValue": "external-example-foo.json"
+                            },
+                            "foo-xml": {
+                                "externalValue": "external-example-foo.xml"
+                            },
+                            "foo-xml-inline": {
+                                "value": "<?xml version='1.0' encoding='utf-8'?><example><qux>false</qux></example>"
+                            },
+                            "bar": {
+                                "externalValue": "external-example-bar.json"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
