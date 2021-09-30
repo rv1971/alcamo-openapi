@@ -77,7 +77,7 @@ class OpenApiTest extends TestCase
     {
         $this->expectException(DataValidationFailed::class);
         $this->expectExceptionMessage(
-            "The data (integer) must match the type: string"
+            "the data (integer) must match the type: string"
         );
 
         $this->createFromUrl(
@@ -89,7 +89,7 @@ class OpenApiTest extends TestCase
     {
         $this->expectException(DataValidationFailed::class);
         $this->expectExceptionMessage(
-            "The data (array) must match the type: object"
+            "the data (array) must match the type: object"
         );
 
         $this->createFromUrl(
@@ -101,7 +101,7 @@ class OpenApiTest extends TestCase
     {
         $this->expectException(DataValidationFailed::class);
         $this->expectExceptionMessage(
-            "The required properties (baz) are missing"
+            "the required properties (baz) are missing"
         );
 
         $doc = $this->createFromUrl(
@@ -113,7 +113,7 @@ class OpenApiTest extends TestCase
     {
         $this->expectException(DataValidationFailed::class);
         $this->expectExceptionMessage(
-            "The data (string) must match the type: number"
+            "the data (string) must match the type: number"
         );
 
         $doc = $this->createFromUrl(
@@ -125,11 +125,23 @@ class OpenApiTest extends TestCase
     {
         $this->expectException(DataValidationFailed::class);
         $this->expectExceptionMessage(
-            "The data (string) must match the type: boolean"
+            "the data (string) must match the type: boolean"
         );
 
         $doc = $this->createFromUrl(
             self::OPENAPI_INVALID_DIR . 'media-type-external-examples.json'
+        );
+    }
+
+    public function testInvalidInforMetadata()
+    {
+        $this->expectException(DataValidationFailed::class);
+        $this->expectExceptionMessage(
+            "the required properties (x-dc-language) are missing"
+        );
+
+        $doc = $this->createFromUrl(
+            self::OPENAPI_INVALID_DIR . 'info-metadata.json'
         );
     }
 

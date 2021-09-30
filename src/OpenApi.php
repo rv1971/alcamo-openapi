@@ -5,22 +5,49 @@ namespace alcamo\openapi;
 use alcamo\exception\{AbsoluteUriNeeded, DataValidationFailed};
 use alcamo\ietf\Uri;
 use alcamo\json\{
-    JsonDocument,
-    JsonDocumentFactory,
     JsonNode,
     RecursiveWalker,
     ReferenceResolver
 };
-use Opis\JsonSchema\{Schema, Validator};
-use Opis\JsonSchema\Errors\ErrorFormatter;
 use Psr\Http\Message\UriInterface;
 
 class OpenApi extends AbstractTypedJsonDocument
 {
-    public const SUPPORTED_VERSIONS = [ '3.0' ];
+    public const SCHEMA_BASE_URI =
+        'tag:rv1971@web.de,2021,2021:alcamo-openapi:schema:';
 
-    public const VERSION_URI_PREFIX =
-        'https://github.com/rv1971/alcamo-openapi?openApiVersion=';
+    public const SCHEMA_DIR = __DIR__ . DIRECTORY_SEPARATOR
+        . '..' . DIRECTORY_SEPARATOR
+        . 'schemas' . DIRECTORY_SEPARATOR;
+
+    /**
+     * @brief Class-independent schemas
+     *
+     * @note Redefinitions of this constant in child classes are ignored.
+     *
+     * Map of schema IDs to schema paths in the file system.
+     */
+    public const GLOBAL_SCHEMAS = [
+        self::SCHEMA_BASE_URI . 'openapi:3.0'
+        => self::SCHEMA_DIR . 'openapi-3.0.json'
+    ];
+
+    /**
+     * @brief Additional schemas
+     *
+     * This constant may be refined in child classes.
+     *
+     * Map of schema IDs to schema paths in the file system.
+     */
+    public const SCHEMAS = [
+        self::SCHEMA_BASE_URI . 'extension:info.metadata'
+        => self::SCHEMA_DIR . 'extension.info.metadata.json'
+    ];
+
+    /// Map of JSON pointers to applicable schema IDs
+    public const JSON_PTR2SCHEMA_ID = [
+        '/info' => self::SCHEMA_BASE_URI . 'extension:info.metadata'
+    ];
 
     public const CLASS_MAP = [
         'info'         => Info::class,
@@ -33,26 +60,30 @@ class OpenApi extends AbstractTypedJsonDocument
         '*'            => OpenApiNode::class
     ];
 
-    private static $validator_; ///< Validator
+    private static $globalValidator_; ///< Validator
 
-    private $localValidator_; ///< Validator
+    private static $validators_; ///< Map of class names to Validator objects
+
+    private $validator_; ///< Validator
+
+    public static function getGlobalValidator(): Validator
+    {
+        if (!isset(self::$globalValidator_)) {
+            self::$globalValidator_ =
+                Validator::newFromSchemas(self::GLOBAL_SCHEMAS);
+        }
+
+        return self::$globalValidator_;
+    }
 
     public static function getValidator(): Validator
     {
-        if (!isset(self::$validator_)) {
-            self::$validator_ = new Validator();
-
-            foreach (self::SUPPORTED_VERSIONS as $version) {
-                self::$validator_->resolver()->registerFile(
-                    self::VERSION_URI_PREFIX . $version,
-                    dirname(__DIR__) . DIRECTORY_SEPARATOR
-                    . 'schemas' . DIRECTORY_SEPARATOR
-                    . "openapi-$version.json"
-                );
-            }
+        if (!isset(self::$validators_[static::class])) {
+            self::$validators_[static::class] =
+                Validator::newFromSchemas(static::SCHEMAS);
         }
 
-        return self::$validator_;
+        return self::$validators_[static::class];
     }
 
     public function __construct(
@@ -67,24 +98,27 @@ class OpenApi extends AbstractTypedJsonDocument
 
         parent::__construct($data, $ownerDocument, $jsonPtr, $baseUri);
 
-        $this->localValidator_ = new Validator();
-
-        $this->localValidator_->resolver()
-            ->registerRaw($this, $this->getBaseUri());
-
         $this->resolveReferences(ReferenceResolver::RESOLVE_EXTERNAL);
+
+        $this->validator_ = new Validator();
+
+        $this->validator_->resolver()->registerRaw($this, $this->getBaseUri());
 
         $this->validate();
 
         $this->validateExamples();
+
+        $this->validateExtensions();
     }
 
     public function resolveExternalValues(): void
     {
-        $walker =
-            new RecursiveWalker($this, RecursiveWalker::JSON_OBJECTS_ONLY);
-
-        foreach ($walker as $node) {
+        foreach (
+            new RecursiveWalker(
+                $this,
+                RecursiveWalker::JSON_OBJECTS_ONLY
+            ) as $node
+        ) {
             if (isset($node->externalValue)) {
                 $node->resolveExternalValue();
             }
@@ -93,26 +127,11 @@ class OpenApi extends AbstractTypedJsonDocument
 
     protected function validate(): void
     {
-        $validationResult = self::getValidator()->validate(
+        self::getGlobalValidator()->validate(
             $this,
-            self::VERSION_URI_PREFIX
+            self::SCHEMA_BASE_URI . 'openapi:'
             . substr($this->openapi, 0, strrpos($this->openapi, '.'))
         );
-
-        if ($validationResult->hasError()) {
-            $error = $validationResult->error();
-            /** @throw alcamo::exception::DataValidationFailed if not a valid
-             *  OpenApi schema. */
-            throw new DataValidationFailed(
-                json_encode($error->data()),
-                $this->getBaseUri(),
-                null,
-                '; ' . json_encode(
-                    (new ErrorFormatter())->format($error),
-                    JSON_PRETTY_PRINT
-                )
-            );
-        }
     }
 
     protected function validateExamples(): void
@@ -155,48 +174,38 @@ class OpenApi extends AbstractTypedJsonDocument
         }
     }
 
-    /* The second argument may be a reference object, in which case it is
-     * provided as a JsonNode and not as an OpenApiNode. */
+    /* The type hint for the second argument is JsonNode, not OpenApiNode,
+     * because it may be a reference object, in which case it is provided as a
+     * JsonNode. */
     protected function validateExample(
         $value,
         JsonNode $schema,
         string $uri
-    ) {
-        $schemaId = (string)$schema->getUri();
-
-        $validationResult =
-            $this->localValidator_->validate($value, $schemaId);
-
-        if ($validationResult->hasError()) {
-            $error = $validationResult->error();
-
-            /** Ignore an error on a string when expecting an object or array
-             * because the string is then likely to be the serialization of
-             * non-JSON data. */
-            if (is_string($value)) {
-                while ($error->keyword() == '$ref') {
-                    $error = $error->subErrors()[0];
-                }
-
-                if (
-                    $error->keyword() == 'type'
-                    && in_array($error->args()['expected'], ['array', 'object'])
-                ) {
-                    return;
-                }
+    ): void {
+        try {
+            $this->validator_->validate($value, (string)$schema->getUri());
+        } catch (DataValidationFailed $e) {
+            /* Ignore validation errors when $value is a string while a
+             * complex type was expected, because this normally means that the
+             * example is serialized non-JSON data. */
+            if (
+                is_string($value)
+                && $e->rootCause->keyword() == 'type'
+                && in_array($e->rootCause->args()['expected'], ['array', 'object'])
+            ) {
+                return;
             }
 
-            /** @throw alcamo::exception::DataValidationFailed if an example
-             *  is not valid. */
-            throw new DataValidationFailed(
-                json_encode($error->data()),
-                $uri,
-                null,
-                '; ' . json_encode(
-                    (new ErrorFormatter())->formatOutput($error, 'verbose'),
-                    JSON_PRETTY_PRINT
-                )
-            );
+            throw $e;
+        }
+    }
+
+    protected function validateExtensions()
+    {
+        $validator = $this->getValidator();
+
+        foreach (static::JSON_PTR2SCHEMA_ID as $jsonPtr => $schemaId) {
+            $validator->validate($this->getNode($jsonPtr), $schemaId);
         }
     }
 }

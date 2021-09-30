@@ -1,0 +1,15 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "OpenAPI document missing metadata",
+        "contact": {
+            "email": "rv1971@web.de"
+        },
+        "version": "1.0.0",
+        "x-dc-identifier": "invalid-info-metadata",
+        "x-dc-created": "2021-09-30",
+        "x-dc-modified": "2021-09-30"
+    },
+    "paths": {
+    }
+}

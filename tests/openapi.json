@@ -11,7 +11,11 @@
             "name": "Apache 2.0",
             "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
         },
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "x-dc-identifier": "petstore",
+        "x-dc-created": "2021-09-15",
+        "x-dc-modified": "2021-09-30",
+        "x-dc-language": "en"
     },
     "externalDocs": {
         "description": "Find out more about Swagger",

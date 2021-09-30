@@ -1,0 +1,31 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Additional meta data requirements for the info object",
+    "type": "object",
+    "required": [
+        "contact",
+        "x-dc-identifier",
+        "x-dc-created",
+        "x-dc-modified",
+        "x-dc-language"
+    ],
+    "properties": {
+        "x-dc-identifier": {
+            "type": "string"
+        },
+        "x-dc-created": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "x-dc-modified": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "x-dc-language": {
+            "type": "string",
+            "pattern": "[a-z]{2}.*"
+        }
+    }
+}
