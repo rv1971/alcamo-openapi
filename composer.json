@@ -20,10 +20,10 @@
     "require": {
         "php": "7.3 - 8.0",
         "alcamo/json": "dev-master",
+        "alcamo/rdfa": "^0.1",
         "opis/string": "dev-master",
         "opis/uri": "dev-master",
-        "opis/json-schema": "dev-master",
-        "sebastian/exporter": "^4.0"
+        "opis/json-schema": "dev-master"
     },
     "autoload": {
 	"psr-4": {

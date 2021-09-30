@@ -9,6 +9,7 @@ use alcamo\json\{
     RecursiveWalker,
     ReferenceResolver
 };
+use alcamo\rdfa\RdfaData;
 use Psr\Http\Message\UriInterface;
 
 class OpenApi extends AbstractTypedJsonDocument
@@ -49,6 +50,10 @@ class OpenApi extends AbstractTypedJsonDocument
         '/info' => self::SCHEMA_BASE_URI . 'extension:info.metadata'
     ];
 
+    public const OPENAPI_URI = 'https://swagger.io/specification/';
+
+    public const DEFAULT_RDFA_DATA = [ 'dc:type' => 'Text' ];
+
     public const CLASS_MAP = [
         'info'         => Info::class,
         'servers'      => [ '*' => Server::class ],
@@ -65,6 +70,8 @@ class OpenApi extends AbstractTypedJsonDocument
     private static $validators_; ///< Map of class names to Validator objects
 
     private $validator_; ///< Validator
+
+    private $rdfaData_;  ///< RdfaData
 
     public static function getGlobalValidator(): Validator
     {
@@ -123,6 +130,41 @@ class OpenApi extends AbstractTypedJsonDocument
                 $node->resolveExternalValue();
             }
         }
+    }
+
+    public function getRdfaData(): RdfaData
+    {
+        if (!isset($this->rdfaData_)) {
+            $rdfaProps = [
+                'dc:title' => $this->info->title,
+                'owl:versionInfo' => $info->version,
+                'dc:conformsTo' => [
+                    [ self::OPENAPI_URI, "OpenAPI $this->openapi" ]
+                ]
+            ];
+
+            if (isset($this->info->contact)) {
+                $rdfaProps['dc:creator'] = $this->info->contact->toDcCreator();
+            }
+
+            $this->rdfaData_ = RdfaData::newFromIterable(
+                $rdfaProps + static::DEFAULT_RDFA_DATA
+            );
+
+            $rdfaProps = [];
+
+            foreach ($info as $prop => $value) {
+                if (substr($prop, 0, 5) == 'x-dc-') {
+                    $rdfaProps['dc:' . substr($prop, 5)] = $value;
+                }
+            }
+
+            $this->rdfaData_ = $this->rdfaData_->add(
+                RdfaData::newFromIterable($rdfaProps)
+            );
+        }
+
+        return $this->rdfaData_;
     }
 
     protected function validate(): void
