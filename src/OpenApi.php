@@ -7,13 +7,16 @@ use alcamo\ietf\Uri;
 use alcamo\json\{
     JsonNode,
     RecursiveWalker,
-    ReferenceResolver
+    ReferenceResolver,
+    TypedNodeDocumentTrait
 };
 use alcamo\rdfa\RdfaData;
 use Psr\Http\Message\UriInterface;
 
-class OpenApi extends AbstractTypedJsonDocument
+class OpenApi extends OpenApiNode
 {
+    use TypedNodeDocumentTrait;
+
     public const SCHEMA_BASE_URI =
         'tag:rv1971@web.de,2021,2021:alcamo-openapi:schema:';
 
@@ -69,6 +72,8 @@ class OpenApi extends AbstractTypedJsonDocument
 
     private static $validators_; ///< Map of class names to Validator objects
 
+    private $openApiVersion_;
+
     private $validator_; ///< Validator
 
     private $rdfaData_;  ///< RdfaData
@@ -106,6 +111,13 @@ class OpenApi extends AbstractTypedJsonDocument
         parent::__construct($data, $ownerDocument, $jsonPtr, $baseUri);
 
         $this->resolveReferences(ReferenceResolver::RESOLVE_EXTERNAL);
+
+        $this->openApiVersion_ =
+            substr($this->openapi, 0, strrpos($this->openapi, '.'));
+
+        if ($this->openApiVersion_ == '3.0') {
+            $this->adjustForOpenApi30();
+        }
 
         $this->validator_ = new Validator();
 
@@ -167,12 +179,31 @@ class OpenApi extends AbstractTypedJsonDocument
         return $this->rdfaData_;
     }
 
+    /// Remove some metadata of newer schemas not supported in OpenAPI 3.0
+    protected function adjustForOpenApi30(): void
+    {
+        foreach (
+            new RecursiveWalker(
+                $this,
+                RecursiveWalker::JSON_OBJECTS_ONLY
+            ) as $node
+        ) {
+            if (!($node instanceof Schema)) {
+                continue;
+            }
+
+            unset($node->{'$comment'});
+            unset($node->{'$id'});
+            unset($node->{'$schema'});
+            unset($node->{'id'});
+        }
+    }
+
     protected function validate(): void
     {
         self::getGlobalValidator()->validate(
             $this,
-            self::SCHEMA_BASE_URI . 'openapi:'
-            . substr($this->openapi, 0, strrpos($this->openapi, '.'))
+            self::SCHEMA_BASE_URI . "openapi:$this->openApiVersion_"
         );
     }
 

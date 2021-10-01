@@ -862,21 +862,7 @@
                     "name": "Order"
                 }
             },
-            "Category": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    "name": {
-                        "type": "string"
-                    }
-                },
-                "xml": {
-                    "name": "Category"
-                }
-            },
+            "Category": { "$ref": "components/schemas/Category.json" },
             "User": {
                 "type": "object",
                 "properties": {

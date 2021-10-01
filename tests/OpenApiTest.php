@@ -36,6 +36,11 @@ class OpenApiTest extends TestCase
         $this->assertInstanceOf(Server::class, $openApi->servers[0]);
 
         $this->assertInstanceOf(Server::class, $openApi->servers[1]);
+
+        $this->assertInstanceOf(
+            Schema::class,
+            $openApi->components->schemas->Order->properties->id
+        );
     }
 
     public function testConstructUriException()

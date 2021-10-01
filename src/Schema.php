@@ -2,27 +2,17 @@
 
 namespace alcamo\openapi;
 
-class Schema extends OpenApiNode
+use alcamo\json\SchemaNode;
+
+class Schema extends SchemaNode
 {
-    public const CLASS_MAP = [
-        'properties'           => [ '*' => '#' ],
-        'patternProperties'    => [ '*' => '#' ],
-        'additionalProperties' => '#',
-        'propertyNames'        => '#',
-        'items'                => '#',
-        'prefixItems'          => [ '*' => '#' ],
-        'contains'             => '#',
-        'allOf'                => [ '*' => '#' ],
-        'anyOf'                => [ '*' => '#' ],
-        'oneOf'                => [ '*' => '#' ],
-        'not'                  => '#',
-        'dependentSchemas'     => [ '*' => '#' ],
-        'if'                   => '#',
-        'then'                 => '#',
-        'else'                 => '#',
-        'discriminator'        => Discriminator::class,
-        'xml'                  => Xml::class,
-        'externalDocs'         => ExternalDocumentation::class,
-        'example'              => OpenApiNode::class
-    ];
+    public const CLASS_MAP =
+        [
+        'properties'    => SchemaMap::class,
+        'discriminator' => Discriminator::class,
+        'xml'           => Xml::class,
+        'externalDocs'  => ExternalDocumentation::class,
+        'example'       => OpenApiNode::class
+        ]
+        + parent::CLASS_MAP;
 }
