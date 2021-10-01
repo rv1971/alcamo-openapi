@@ -12,6 +12,7 @@ class Example extends OpenApiNode
     private $externalValueMediaType_ = false; ///< ?alcamo::iana::MediaType
     private $externalValueContent_   = false; ///< any
 
+    /// Resolved URL of `externalValue`, if any
     public function getExternalValueUrl(): ?UriInterface
     {
         if ($this->externalValueUrl_ === false) {
@@ -23,6 +24,7 @@ class Example extends OpenApiNode
         return $this->externalValueUrl_;
     }
 
+    /// Media type of target of `externalValue`, if any
     public function getExternalValueMediaType(): ?MediaType
     {
         if ($this->externalValueMediaType_ === false) {
@@ -36,6 +38,7 @@ class Example extends OpenApiNode
         return $this->externalValueMediaType_;
     }
 
+    /// Literal content of target of `externalValue`, if any
     public function getExternalValueContent()
     {
         if ($this->externalValueContent_ === false) {
@@ -61,11 +64,13 @@ class Example extends OpenApiNode
         return $this->externalValueContent_;
     }
 
+    /// Either content of `value` or content of target of `externalValue`
     public function getValue()
     {
         return $this->value ?? $this->getExternalValueContent();
     }
 
+    /// Transform `externalValue`, if any, to a `value` property
     public function resolveExternalValue(): void
     {
         if (isset($this->externalValue)) {

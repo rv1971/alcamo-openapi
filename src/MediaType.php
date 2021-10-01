@@ -8,6 +8,7 @@ class MediaType extends OpenApiNode
         'schema'   => Schema::class,
         'example'  => OpenApiNode::class,
         'examples' => Examples::class,
-        'encoding' => Encodings::class
+        'encoding' => Encodings::class,
+        '*'        => OpenApiNode::class // for extensions
     ];
 }

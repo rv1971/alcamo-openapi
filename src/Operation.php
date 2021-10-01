@@ -11,6 +11,7 @@ class Operation extends OpenApiNode
         'responses'    => Responses::class,
         'callbacks'    => Callbacks::class,
         'security'     => [ '*' => SecurityRequirement::class ],
-        'servers'      => [ '*' => Server::class ]
+        'servers'      => [ '*' => Server::class ],
+        '*'            => OpenApiNode::class // for extensions
     ];
 }

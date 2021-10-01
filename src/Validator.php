@@ -4,23 +4,26 @@ namespace alcamo\openapi;
 
 use alcamo\exception\DataValidationFailed;
 use alcamo\ietf\Uri;
-use alcamo\json\{JsonDocumentFactory, JsonNode};
+use alcamo\json\{SchemaDocumentFactory, JsonNode};
 use Opis\JsonSchema\{Validator as ValidatorBase, ValidationResult};
 use Opis\JsonSchema\Errors\ErrorFormatter;
 
 /**
- * Validator that resolves schema IDs to JsonDocument objects
+ * Validator with some convenience methods
  */
 class Validator extends ValidatorBase
 {
     /**
      * @param $map Map of schema IDs to schema paths
+     *
+     * Schemas are stored as alcamo::json::SchemaDocument objects and can be
+     * retrieved via resolver()->resolve().
      */
     public static function newFromSchemas(array $map): self
     {
         $validator = new static();
 
-        $factory = new JsonDocumentFactory();
+        $factory = new SchemaDocumentFactory();
 
         foreach ($map as $id => $path) {
             $validator->resolver()->registerRaw(

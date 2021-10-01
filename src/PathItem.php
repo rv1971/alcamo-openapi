@@ -14,6 +14,7 @@ class PathItem extends OpenApiNode
         'patch'      => Operation::class,
         'trace'      => Operation::class,
         'servers'    => [ '*' => Server::class ],
-        'parameters' => [ '*' => Parameter::class ]
+        'parameters' => [ '*' => Parameter::class ],
+        '*'          => OpenApiNode::class // for extensions
     ];
 }

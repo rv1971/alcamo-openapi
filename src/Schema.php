@@ -4,6 +4,11 @@ namespace alcamo\openapi;
 
 use alcamo\json\SchemaNode;
 
+/**
+ * @brief OpenAPI Schema node
+ *
+ * Contains some OpenAPI 3.0 extensions.
+ */
 class Schema extends SchemaNode
 {
     public const CLASS_MAP =

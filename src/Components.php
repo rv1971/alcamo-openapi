@@ -13,6 +13,7 @@ class Components extends OpenApiNode
         'headers'         => Headers::class,
         'securitySchemes' => SecuritySchemes::class,
         'links'           => Links::class,
-        'callbacks'       => Callbacks::class
+        'callbacks'       => Callbacks::class,
+        '*'               => OpenApiNode::class // for extensions
     ];
 }

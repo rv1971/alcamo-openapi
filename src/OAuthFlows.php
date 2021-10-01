@@ -8,6 +8,7 @@ class OAuthFlows extends OpenApiNode
         'implicit'          => OAuthFlow::class,
         'password'          => OAuthFlow::class,
         'clientCredentials' => OAuthFlow::class,
-        'authorizationCode' => OAuthFlow::class
+        'authorizationCode' => OAuthFlow::class,
+        '*'                 => OpenApiNode::class // for extensions
     ];
 }
