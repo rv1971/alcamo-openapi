@@ -3,12 +3,12 @@
     "info": {
         "title": "Minimal OpenAPI document",
         "contact": {
-            "email": "rv1971@web.de"
+            "email": "alice@example.com"
         },
         "version": "1.0.0",
         "x-dc-identifier": "minimal",
         "x-dc-created": "2021-09-24",
-        "x-dc-modified": "2021-09-30",
+        "x-dc-modified": "2021-10-01",
         "x-dc-language": "en"
     },
     "paths": {

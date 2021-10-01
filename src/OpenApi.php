@@ -137,7 +137,7 @@ class OpenApi extends AbstractTypedJsonDocument
         if (!isset($this->rdfaData_)) {
             $rdfaProps = [
                 'dc:title' => $this->info->title,
-                'owl:versionInfo' => $info->version,
+                'owl:versionInfo' => $this->info->version,
                 'dc:conformsTo' => [
                     [ self::OPENAPI_URI, "OpenAPI $this->openapi" ]
                 ]
@@ -153,7 +153,7 @@ class OpenApi extends AbstractTypedJsonDocument
 
             $rdfaProps = [];
 
-            foreach ($info as $prop => $value) {
+            foreach ($this->info as $prop => $value) {
                 if (substr($prop, 0, 5) == 'x-dc-') {
                     $rdfaProps['dc:' . substr($prop, 5)] = $value;
                 }
