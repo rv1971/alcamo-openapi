@@ -9,7 +9,7 @@ use alcamo\json\SchemaNode;
  *
  * Contains some OpenAPI 3.0 extensions.
  */
-class Schema extends SchemaNode
+class Schema extends SchemaNode implements HasExampleInterface
 {
     public const CLASS_MAP =
         [

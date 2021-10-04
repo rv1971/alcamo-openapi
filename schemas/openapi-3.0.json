@@ -1,5 +1,5 @@
 {
-  "id": "https://github.com/rv1971/alcamo-openapi/tree/master/src/schemas/openapi-3.0.json",
+  "$id": "tag:rv1971@web.de,2021:alcamo-openapi:schema:openapi:3.0",
   "$schema": "http://json-schema.org/draft-06/schema#",
   "description": "Validation schema for OpenAPI Specification 3.0.X, adjusted to draft-06.",
   "type": "object",

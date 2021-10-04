@@ -1,4 +1,5 @@
 {
+    "$id": "tag:rv1971@web.de,2021:alcamo-openapi:schema:extension:info.metadata",
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "Additional meta data requirements for the info object",
     "type": "object",

@@ -2,7 +2,7 @@
 
 namespace alcamo\openapi;
 
-class MediaType extends OpenApiNode
+class MediaType extends OpenApiNode implements HasExampleInterface
 {
     public const CLASS_MAP = [
         'schema'   => Schema::class,

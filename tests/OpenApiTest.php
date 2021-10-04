@@ -4,8 +4,7 @@ namespace alcamo\openapi;
 
 use alcamo\exception\{AbsoluteUriNeeded, DataValidationFailed};
 use alcamo\ietf\Uri;
-use alcamo\xml_creation\Nodes;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\{Exception, TestCase};
 
 class OpenApiTest extends TestCase
 {
@@ -72,7 +71,7 @@ class OpenApiTest extends TestCase
 
     public function testInvalidOpenApiVersion()
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(Exception::class);
 
         $this->createFromUrl(
             self::OPENAPI_INVALID_DIR . 'openapi-version.json'
@@ -151,47 +150,29 @@ class OpenApiTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider getRdfaDataProvider
-     */
-    public function testGetRdfaData($openApi, $expectedHtml)
-    {
-        $html = [];
-
-        foreach ($openApi->getRdfaData() as $stmt) {
-            $html[] = $stmt->toVisibleHtmlNodes(true);
-        }
-
-        $this->assertEquals(
-            $expectedHtml,
-            (string)(new Nodes($html))
-        );
-    }
-
-    public function getRdfaDataProvider()
+    public function testGetValidator()
     {
         $factory = new OpenApiFactory();
 
-        $minimal = $factory->createFromUrl(
-            Uri::newFromFilesystemPath(
-                __DIR__ . DIRECTORY_SEPARATOR . 'openapi-minimal.json'
+        $validator = $factory
+            ->createFromUrl(
+                Uri::newFromFilesystemPath(self::OPENAPI_FILENAME)
             )
+            ->getValidator();
+
+        $validator->validate(
+            json_decode('{"name": "foo", "photoUrls": []}'),
+            '#/components/schemas/Pet'
         );
 
-        return [
-            [
-                $minimal,
-                '<span property="dc:title">Minimal OpenAPI document</span>'
-                . '<span property="owl:versionInfo">1.0.0</span>'
-                . '<a rel="dc:conformsTo" href="https://swagger.io/specification/">OpenAPI 3.0.1</a>'
-                . '<a rel="dc:creator author" href="mailto:alice@example.com">Creator</a>'
-                . '<span property="dc:type">Text</span>'
-                . '<span property="dc:identifier">minimal</span>'
-                . '<span property="dc:created">2021-09-24T00:00:00+00:00</span>'
-                . '<span property="dc:modified">2021-10-01T00:00:00+00:00</span>'
-                . '<span property="dc:language">en</span>'
-            ]
-        ];
+        $this->expectException(DataValidationFailed::class);
+        $this->expectExceptionMessage(
+            "the required properties (photoUrls) are missing"
+        );
+        $validator->validate(
+            json_decode('{"name": "foo"}'),
+            '#/components/schemas/Pet'
+        );
     }
 
     private function createFromUrl($path)

@@ -10,52 +10,22 @@ use alcamo\json\{
     ReferenceResolver,
     TypedNodeDocumentTrait
 };
-use alcamo\rdfa\RdfaData;
+use alcamo\json\exception\NodeNotFound;
+use Opis\JsonSchema\Uri as OpisUri;
 use Psr\Http\Message\UriInterface;
 
+/**
+ * @brief OpenAPI document
+ *
+ * To optimize JSON Schema caching, this class comes with three validators,
+ * returned by
+ * - getGlobalValidator()
+ * - getClassValidator()
+ * - getValidator()
+ */
 class OpenApi extends OpenApiNode
 {
     use TypedNodeDocumentTrait;
-
-    public const SCHEMA_BASE_URI =
-        'tag:rv1971@web.de,2021,2021:alcamo-openapi:schema:';
-
-    public const SCHEMA_DIR = __DIR__ . DIRECTORY_SEPARATOR
-        . '..' . DIRECTORY_SEPARATOR
-        . 'schemas' . DIRECTORY_SEPARATOR;
-
-    /**
-     * @brief Class-independent schemas
-     *
-     * @note Redefinitions of this constant in child classes are ignored.
-     *
-     * Map of schema IDs to schema paths in the file system.
-     */
-    public const GLOBAL_SCHEMAS = [
-        self::SCHEMA_BASE_URI . 'openapi:3.0'
-        => self::SCHEMA_DIR . 'openapi-3.0.json'
-    ];
-
-    /**
-     * @brief Additional schemas
-     *
-     * This constant may be refined in child classes.
-     *
-     * Map of schema IDs to schema paths in the file system.
-     */
-    public const SCHEMAS = [
-        self::SCHEMA_BASE_URI . 'extension:info.metadata'
-        => self::SCHEMA_DIR . 'extension.info.metadata.json'
-    ];
-
-    /// Map of JSON pointers to applicable schema IDs
-    public const JSON_PTR2SCHEMA_ID = [
-        '/info' => self::SCHEMA_BASE_URI . 'extension:info.metadata'
-    ];
-
-    public const OPENAPI_URI = 'https://swagger.io/specification/';
-
-    public const DEFAULT_RDFA_DATA = [ 'dc:type' => 'Text' ];
 
     public const CLASS_MAP = [
         'info'         => Info::class,
@@ -68,16 +38,69 @@ class OpenApi extends OpenApiNode
         '*'            => OpenApiNode::class
     ];
 
-    private static $globalValidator_; ///< Validator
+    /// Base URI used in IDs of bundled schemas
+    public const SCHEMA_BASE_URI =
+        'tag:rv1971@web.de,2021:alcamo-openapi:schema:';
 
-    private static $validators_; ///< Map of class names to Validator objects
+    /// Directory where bundled schemas are stored
+    public const SCHEMA_DIR = __DIR__ . DIRECTORY_SEPARATOR
+        . '..' . DIRECTORY_SEPARATOR
+        . 'schemas' . DIRECTORY_SEPARATOR;
 
+    /**
+     * @brief Paths to class-independent schema files
+     *
+     * @note Redefinitions of this constant in child classes are ignored.
+     */
+    public const GLOBAL_SCHEMAS = [
+        self::SCHEMA_DIR . 'openapi-3.0.json',
+        self::SCHEMA_DIR . 'openapi-3.1.json'
+    ];
+
+    /// Map of OpenAPI versions to schema IDs
+    public const OPENAPI_VERSIONS = [
+        '3.0' => 'tag:rv1971@web.de,2021:alcamo-openapi:schema:openapi:3.0',
+        '3.1' => 'https://spec.openapis.org/oas/3.1/schema/2021-05-20'
+    ];
+
+    /**
+     * @brief Paths to additional schema files
+     *
+     * This constant may be refined in child classes.
+     */
+    public const SCHEMAS = [
+        self::SCHEMA_DIR . 'extension.info.metadata.json'
+    ];
+
+    /**
+     * @brief Map of JSON pointers to applicable schema IDs
+     *
+     * If no node exists for a JSON pointer, the entry is ignored.
+     *
+     * This constant may be refined in child classes.
+     */
+    public const JSON_PTR2SCHEMA_ID = [
+        '/info' => self::SCHEMA_BASE_URI . 'extension:info.metadata'
+    ];
+
+    /// Class-independent validator
+    private static $globalValidator_;
+
+    /// Map of class names to Validator objects
+    private static $validators_;
+
+    /// First two components of OpenAPI version of this document
     private $openApiVersion_;
 
-    private $validator_; ///< Validator
+    /// Document-specific validator
+    private $validator_;
 
-    private $rdfaData_;  ///< RdfaData
-
+    /**
+     * @brief Global validator for all instances of all derived classes
+     *
+     * The OpenAPI schemas taken from @ref GLOBAL_SCHEMAS are registered
+     * here. This validator should not be modified in child classes.
+     */
     public static function getGlobalValidator(): Validator
     {
         if (!isset(self::$globalValidator_)) {
@@ -88,7 +111,14 @@ class OpenApi extends OpenApiNode
         return self::$globalValidator_;
     }
 
-    public static function getValidator(): Validator
+    /**
+     * @brief Class-specific validator for all instances of the current class
+     *
+     * Returns different objects when called from different child classes of
+     * OpenApi. The additional schemas taken from @ref SCHEMAS (which may be
+     * overridden in a child class) are registered here.
+     */
+    public static function getClassValidator(): Validator
     {
         if (!isset(self::$validators_[static::class])) {
             self::$validators_[static::class] =
@@ -98,6 +128,15 @@ class OpenApi extends OpenApiNode
         return self::$validators_[static::class];
     }
 
+    /**
+     * In addition to creating a JSON document, the constructor
+     * - resolves any external references
+     * - performs OpenAPI 3.0 specific adjustments (see adjustForOpenApi30())
+     * - validates the document
+     * - validates the examples in the document
+     * - validates (parts of) the document against extensions as specified
+     * by @ref JSON_PTR2SCHEMA_ID.
+     */
     public function __construct(
         $data,
         ?self $ownerDocument = null,
@@ -105,6 +144,9 @@ class OpenApi extends OpenApiNode
         ?UriInterface $baseUri = null
     ) {
         if (!Uri::isAbsolute($baseUri)) {
+            /** @throw alcamo::exception::AbsoluteUriNeeded if the base URI is
+             *  not absolute. An absolute URI is necessary to register the
+             *  document in the validator returned by getValidator(). */
             throw new AbsoluteUriNeeded($baseUri);
         }
 
@@ -119,15 +161,31 @@ class OpenApi extends OpenApiNode
             $this->adjustForOpenApi30();
         }
 
+        $this->validate();
+
         $this->validator_ = new Validator();
 
-        $this->validator_->resolver()->registerRaw($this, $this->getBaseUri());
+        $this->validator_->loader()
+            ->setBaseUri(OpisUri::parse($this->getBaseUri()));
 
-        $this->validate();
+        $this->validator_->resolver()->registerRaw($this, $this->getBaseUri());
 
         $this->validateExamples();
 
         $this->validateExtensions();
+    }
+
+    /**
+     * @brief Instance-specific validator
+     *
+     * The entire current document is registered here as a JSON schema so that
+     * schemas contained in it can be used for validation. Since the loader's
+     * base URI is set to the document URI, a contained schema can be
+     * identified simply by a URL fragment containing a JSON pointer.
+     */
+    public function getValidator(): Validator
+    {
+        return $this->validator_;
     }
 
     public function resolveExternalValues(): void
@@ -142,41 +200,6 @@ class OpenApi extends OpenApiNode
                 $node->resolveExternalValue();
             }
         }
-    }
-
-    public function getRdfaData(): RdfaData
-    {
-        if (!isset($this->rdfaData_)) {
-            $rdfaProps = [
-                'dc:title' => $this->info->title,
-                'owl:versionInfo' => $this->info->version,
-                'dc:conformsTo' => [
-                    [ self::OPENAPI_URI, "OpenAPI $this->openapi" ]
-                ]
-            ];
-
-            if (isset($this->info->contact)) {
-                $rdfaProps['dc:creator'] = $this->info->contact->toDcCreator();
-            }
-
-            $this->rdfaData_ = RdfaData::newFromIterable(
-                $rdfaProps + static::DEFAULT_RDFA_DATA
-            );
-
-            $rdfaProps = [];
-
-            foreach ($this->info as $prop => $value) {
-                if (substr($prop, 0, 5) == 'x-dc-') {
-                    $rdfaProps['dc:' . substr($prop, 5)] = $value;
-                }
-            }
-
-            $this->rdfaData_ = $this->rdfaData_->add(
-                RdfaData::newFromIterable($rdfaProps)
-            );
-        }
-
-        return $this->rdfaData_;
     }
 
     /// Remove some metadata of newer schemas not supported in OpenAPI 3.0
@@ -203,22 +226,36 @@ class OpenApi extends OpenApiNode
     {
         self::getGlobalValidator()->validate(
             $this,
-            self::SCHEMA_BASE_URI . "openapi:$this->openApiVersion_"
+            self::OPENAPI_VERSIONS[$this->openApiVersion_]
         );
     }
 
     protected function validateExamples(): void
     {
-        $walker =
-            new RecursiveWalker($this, RecursiveWalker::JSON_OBJECTS_ONLY);
+        foreach (
+            new RecursiveWalker(
+                $this,
+                RecursiveWalker::JSON_OBJECTS_ONLY
+            ) as $node
+        ) {
+            if (!$node instanceof HasExampleInterface) {
+                continue;
+            }
 
-        foreach ($walker as $node) {
             if (isset($node->example)) {
-                $this->validateExample(
-                    $node->example,
-                    $node->schema ?? $node,
-                    $node->getUri('example')
-                );
+                if (isset($node->schema)) {
+                    $this->validateExample(
+                        $node->example,
+                        $node->schema,
+                        $node->getUri('example')
+                    );
+                } elseif ($node instanceof Schema) {
+                    $this->validateExample(
+                        $node->example,
+                        $node,
+                        $node->getUri('example')
+                    );
+                }
             } elseif (isset($node->examples) && isset($node->schema)) {
                 foreach ($node->examples as $example) {
                     if (isset($example->{'$ref'})) {
@@ -248,8 +285,8 @@ class OpenApi extends OpenApiNode
     }
 
     /* The type hint for the second argument is JsonNode, not OpenApiNode,
-     * because it may be a reference object, in which case it is provided as a
-     * JsonNode. */
+     * because it may be a reference object, in which case it is not an
+     * OpenApiNode. */
     protected function validateExample(
         $value,
         JsonNode $schema,
@@ -258,13 +295,16 @@ class OpenApi extends OpenApiNode
         try {
             $this->validator_->validate($value, (string)$schema->getUri());
         } catch (DataValidationFailed $e) {
-            /* Ignore validation errors when $value is a string while a
+            /** Ignore validation errors when $value is a string while a
              * complex type was expected, because this normally means that the
              * example is serialized non-JSON data. */
             if (
                 is_string($value)
                 && $e->rootCause->keyword() == 'type'
-                && in_array($e->rootCause->args()['expected'], ['array', 'object'])
+                && in_array(
+                    $e->rootCause->args()['expected'],
+                    ['array', 'object']
+                )
             ) {
                 return;
             }
@@ -275,10 +315,13 @@ class OpenApi extends OpenApiNode
 
     protected function validateExtensions()
     {
-        $validator = $this->getValidator();
+        $validator = $this->getClassValidator();
 
         foreach (static::JSON_PTR2SCHEMA_ID as $jsonPtr => $schemaId) {
-            $validator->validate($this->getNode($jsonPtr), $schemaId);
+            try {
+                $validator->validate($this->getNode($jsonPtr), $schemaId);
+            } catch (NodeNotFound $e) {
+            }
         }
     }
 }

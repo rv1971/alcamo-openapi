@@ -38,7 +38,14 @@ class Example extends OpenApiNode
         return $this->externalValueMediaType_;
     }
 
-    /// Literal content of target of `externalValue`, if any
+    /**
+     * @brief Content of target of `externalValue`, if any
+     *
+     * If the target has the media type `application/json`, the target is
+     * parsed and the result is an OpenApiNode, an array or a simple
+     * type. Otherwise the result is a string with the literal content of the
+     * target.
+     */
     public function getExternalValueContent()
     {
         if ($this->externalValueContent_ === false) {
@@ -64,13 +71,19 @@ class Example extends OpenApiNode
         return $this->externalValueContent_;
     }
 
-    /// Either content of `value` or content of target of `externalValue`
+    /**
+     * @brief Either the content of `value` or the content of the target of
+     * `externalValue`
+     */
     public function getValue()
     {
         return $this->value ?? $this->getExternalValueContent();
     }
 
-    /// Transform `externalValue`, if any, to a `value` property
+    /**
+     * @brief If there is an `externalValue` property, replace it by an
+     * equivalent `value` property
+     */
     public function resolveExternalValue(): void
     {
         if (isset($this->externalValue)) {

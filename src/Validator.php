@@ -10,31 +10,42 @@ use Opis\JsonSchema\Errors\ErrorFormatter;
 
 /**
  * Validator with some convenience methods
+ *
+ * @todo Move this to alcamo-json. The main reason why it is still here is
+ * that Cygwin does not yet provide php 7.4, and therefore ugly forks of some
+ * Opis packages are needed to make Opis run on Cygwin. I would avoid to make
+ * more packages depend on these forks.
  */
 class Validator extends ValidatorBase
 {
     /**
-     * @param $map Map of schema IDs to schema paths
+     * @param $schemas Filesystem paths to schema files. Each schema file must
+     * have an `$id` property.
      *
-     * Schemas are stored as alcamo::json::SchemaDocument objects and can be
-     * retrieved via resolver()->resolve().
+     * Schemas are stored in the validator as alcamo::json::SchemaDocument
+     * objects and can be retrieved by ID via resolver()->resolve().
      */
-    public static function newFromSchemas(array $map): self
+    public static function newFromSchemas(iterable $schemas): self
     {
         $validator = new static();
 
         $factory = new SchemaDocumentFactory();
 
-        foreach ($map as $id => $path) {
-            $validator->resolver()->registerRaw(
-                $factory->createFromUrl(Uri::newFromFilesystemPath($path)),
-                $id
-            );
+        foreach ($schemas as $path) {
+            $schemaDocument =
+                $factory->createFromUrl(Uri::newFromFilesystemPath($path));
+
+            $validator->resolver()
+                ->registerRaw($schemaDocument, $schemaDocument->{'$id'});
         }
 
         return $validator;
     }
 
+    /**
+     * Identical to the parent's validate() except that an exception is thrown
+     * if validation fails.
+     */
     public function validate(
         $data,
         $schema,

@@ -19,8 +19,8 @@
     ],
     "require": {
         "php": "7.3 - 8.0",
-        "alcamo/json": "dev-master",
-        "alcamo/rdfa": "^0.1",
+        "alcamo/json": "^0.3",
+        "alcamo/rdfa": "^0.2",
         "opis/string": "dev-master",
         "opis/uri": "dev-master",
         "opis/json-schema": "dev-master"
