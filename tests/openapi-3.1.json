@@ -1,0 +1,16 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Minimal OpenAPI 3.1 document",
+        "contact": {
+            "email": "bob@example.com"
+        },
+        "version": "1.2.3",
+        "x-dc-identifier": "minimal-3.1",
+        "x-dc-created": "2021-10-04",
+        "x-dc-modified": "2021-10-04",
+        "x-dc-language": "en"
+    },
+    "paths": {
+    }
+}
