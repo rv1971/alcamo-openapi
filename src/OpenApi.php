@@ -73,14 +73,14 @@ class OpenApi extends OpenApiNode
     ];
 
     /**
-     * @brief Map of JSON pointers to applicable schema IDs
+     * @brief Pairs of JSON pointers and applicable schema IDs
      *
      * If no node exists for a JSON pointer, the entry is ignored.
      *
      * This constant may be refined in child classes.
      */
-    public const JSON_PTR2SCHEMA_ID = [
-        '/info' => self::SCHEMA_BASE_URI . 'extension:info.metadata'
+    public const EXTRA_VALIDATIONS = [
+        [ '/info', self::SCHEMA_BASE_URI . 'extension:info.metadata' ]
     ];
 
     /// Class-independent validator
@@ -135,7 +135,7 @@ class OpenApi extends OpenApiNode
      * - validates the document
      * - validates the examples in the document
      * - validates (parts of) the document against extensions as specified
-     * by @ref JSON_PTR2SCHEMA_ID.
+     * by @ref EXTRA_VALIDATIONS.
      */
     public function __construct(
         $data,
@@ -317,7 +317,9 @@ class OpenApi extends OpenApiNode
     {
         $validator = $this->getClassValidator();
 
-        foreach (static::JSON_PTR2SCHEMA_ID as $jsonPtr => $schemaId) {
+        foreach (static::EXTRA_VALIDATIONS as $pair) {
+            [ $jsonPtr, $schemaId ] = $pair;
+
             try {
                 $validator->validate($this->getNode($jsonPtr), $schemaId);
             } catch (NodeNotFound $e) {
