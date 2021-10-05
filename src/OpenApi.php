@@ -69,7 +69,8 @@ class OpenApi extends OpenApiNode
      * This constant may be refined in child classes.
      */
     public const SCHEMAS = [
-        self::SCHEMA_DIR . 'extension.info.metadata.json'
+        self::SCHEMA_BASE_URI . 'extension:info.metadata'
+        => self::SCHEMA_DIR . 'extension.info.metadata.json'
     ];
 
     /**

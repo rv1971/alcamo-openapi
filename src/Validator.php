@@ -31,12 +31,25 @@ class Validator extends ValidatorBase
 
         $factory = new SchemaDocumentFactory();
 
-        foreach ($schemas as $path) {
+        foreach ($schemas as $key => $path) {
             $schemaDocument =
                 $factory->createFromUrl(Uri::newFromFilesystemPath($path));
 
-            $validator->resolver()
-                ->registerRaw($schemaDocument, $schemaDocument->{'$id'});
+            $id = $schemaDocument->{'$id'};
+
+            if (!is_numeric($key) && $key != $id) {
+                /** @throw alcamo::exception::DataValidationFailed if the key
+                 *  to a schema in $schemas is not numeric and is not equal to
+                 *  the schema ID. */
+                throw new DataValidationFailed(
+                    json_encode($schemas),
+                    null,
+                    null,
+                    "; key \"$key\" differs from schema id \"$id\""
+                );
+            }
+
+            $validator->resolver()->registerRaw($schemaDocument, $id);
         }
 
         return $validator;
