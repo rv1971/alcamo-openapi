@@ -1,5 +1,5 @@
 {
-    "name": "alcamo/dao",
+    "name": "alcamo/openapi",
     "description": "OpenAPI schema document",
     "keywords": [ "OpenAPI" ],
     "license": "Apache-2.0",
