@@ -78,10 +78,13 @@ class OpenApi extends OpenApiNode
      *
      * If no node exists for a JSON pointer, the entry is ignored.
      *
-     * This constant may be refined in child classes.
+     * This constant may be refined in child classes. The only purpose of the
+     * non-numeric keys is to simplify re-use of rules in child classes;
+     * besides that, the keys have no meaning.
      */
     public const EXTRA_VALIDATION_RULES = [
-        [ '/info', self::SCHEMA_BASE_URI . 'extension:info.metadata' ]
+        self::SCHEMA_BASE_URI . 'validation-rule:info'
+        => [ '/info', self::SCHEMA_BASE_URI . 'extension:info.metadata' ]
     ];
 
     /// Class-independent validator
