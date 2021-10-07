@@ -80,7 +80,7 @@ class OpenApi extends OpenApiNode
      *
      * This constant may be refined in child classes.
      */
-    public const EXTRA_VALIDATIONS = [
+    public const EXTRA_VALIDATION_RULES = [
         [ '/info', self::SCHEMA_BASE_URI . 'extension:info.metadata' ]
     ];
 
@@ -136,7 +136,7 @@ class OpenApi extends OpenApiNode
      * - validates the document
      * - validates the examples in the document
      * - validates (parts of) the document against extensions as specified
-     * by @ref EXTRA_VALIDATIONS.
+     * by @ref EXTRA_VALIDATION_RULES.
      */
     public function __construct(
         $data,
@@ -318,7 +318,7 @@ class OpenApi extends OpenApiNode
     {
         $validator = $this->getClassValidator();
 
-        foreach (static::EXTRA_VALIDATIONS as $pair) {
+        foreach (static::EXTRA_VALIDATION_RULES as $pair) {
             [ $jsonPtr, $schemaId ] = $pair;
 
             try {
