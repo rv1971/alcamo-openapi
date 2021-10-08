@@ -165,7 +165,8 @@ class OpenApi extends OpenApiNode
             $this->adjustForOpenApi30();
         }
 
-        $this->validate();
+        // Copy needed because validate adds defaults
+        $this->createDeepCopy()->validate();
 
         $this->validator_ = new Validator();
 
@@ -229,7 +230,6 @@ class OpenApi extends OpenApiNode
     protected function validate(): void
     {
         self::getGlobalValidator()->validate(
-            $this,
             self::OPENAPI_VERSIONS[$this->openApiVersion_]
         );
     }
