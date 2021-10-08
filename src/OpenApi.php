@@ -192,7 +192,7 @@ class OpenApi extends OpenApiNode
         return $this->validator_;
     }
 
-    public function resolveExternalValues(): void
+    public function resolveExternalValues(): self
     {
         foreach (
             new RecursiveWalker(
@@ -204,6 +204,8 @@ class OpenApi extends OpenApiNode
                 $node->resolveExternalValue();
             }
         }
+
+        return $this;
     }
 
     /// Remove some metadata of newer schemas not supported in OpenAPI 3.0
