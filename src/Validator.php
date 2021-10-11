@@ -3,7 +3,7 @@
 namespace alcamo\openapi;
 
 use alcamo\exception\DataValidationFailed;
-use alcamo\ietf\Uri;
+use alcamo\ietf\UriFactory;
 use alcamo\json\{SchemaDocumentFactory, JsonNode};
 use Opis\JsonSchema\{Validator as ValidatorBase, ValidationResult};
 use Opis\JsonSchema\Errors\ErrorFormatter;
@@ -32,8 +32,9 @@ class Validator extends ValidatorBase
         $factory = new SchemaDocumentFactory();
 
         foreach ($schemas as $key => $path) {
-            $schemaDocument =
-                $factory->createFromUrl(Uri::newFromFilesystemPath($path));
+            $schemaDocument = $factory->createFromUrl(
+                (new UriFactory())->createFromFilesystemPath($path)
+            );
 
             $id = $schemaDocument->{'$id'};
 
