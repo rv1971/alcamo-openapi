@@ -11,8 +11,9 @@ class ValidatorTest extends TestCase
     {
         $this->expectException(DataValidationFailed::class);
         $this->expectExceptionMessage(
-            'key "foo" differs from schema id '
-            . '"tag:rv1971@web.de,2021:alcamo-openapi:schema:openapi:3.0"'
+            'schema id '
+            . '"tag:rv1971@web.de,2021:alcamo-openapi:schema:openapi:3.0" '
+            . 'differs from key "foo"'
         );
 
         Validator::newFromSchemas(

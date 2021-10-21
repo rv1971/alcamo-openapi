@@ -42,11 +42,13 @@ class Validator extends ValidatorBase
                 /** @throw alcamo::exception::DataValidationFailed if the key
                  *  to a schema in $schemas is not numeric and is not equal to
                  *  the schema ID. */
-                throw new DataValidationFailed(
-                    json_encode($schemas),
-                    null,
-                    null,
-                    "; key \"$key\" differs from schema id \"$id\""
+                throw (new DataValidationFailed())->setMessageContext(
+                    [
+                        'inData' => $schemaDocument,
+                        'atUri' => $schemaDocument->getUri('$id'),
+                        'extraMessage' =>
+                        "schema id \"$id\" differs from key \"$key\""
+                    ]
                 );
             }
 
@@ -79,22 +81,22 @@ class Validator extends ValidatorBase
             }
 
             /** @throw alcamo::exception::DataValidationFailed if validation
-             *  fails. Store the validation error in the property `error` and
-             *  the root cause error in the property `rootCause` of the
-             *  exception object. */
-            $e = new DataValidationFailed(
-                json_encode($error->data()->value()),
-                $data instanceof JsonNode ? $data->getUri() : null,
-                null,
-                '; ' . lcfirst(
+             *  fails. */
+
+            $context = [
+                'inData' => $error->data()->value(),
+                'error' => $error,
+                'rootCause' => $rootCause,
+                'extraMessage' => lcfirst(
                     (new ErrorFormatter())->formatErrorMessage($rootCause)
                 )
-            );
+            ];
 
-            $e->error = $error;
-            $e->rootCause = $rootCause;
+            if ($data instanceof JsonNode) {
+                $context['atUri'] = $data->getUri();
+            }
 
-            throw $e;
+            throw (new DataValidationFailed())->setMessageContext($context);
         }
 
         return $validationResult;

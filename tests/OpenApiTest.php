@@ -47,11 +47,6 @@ class OpenApiTest extends TestCase
         $factory = new OpenApiFactory();
 
         $this->expectException(AbsoluteUriNeeded::class);
-        $this->expectExceptionMessage(
-            'Relative URI "'
-            . self::OPENAPI_FILENAME
-            . '" given where absolute URI is needed'
-        );
 
         $factory->createFromUrl(self::OPENAPI_FILENAME);
     }

@@ -151,7 +151,8 @@ class OpenApi extends OpenApiNode
             /** @throw alcamo::exception::AbsoluteUriNeeded if the base URI is
              *  not absolute. An absolute URI is necessary to register the
              *  document in the validator returned by getValidator(). */
-            throw new AbsoluteUriNeeded($baseUri);
+            throw (new AbsoluteUriNeeded())
+                ->setMessageContext([ 'uri' => $baseUri ]);
         }
 
         parent::__construct($data, $ownerDocument, $jsonPtr, $baseUri);
@@ -305,13 +306,12 @@ class OpenApi extends OpenApiNode
             /** Ignore validation errors when $value is a string while a
              * complex type was expected, because this normally means that the
              * example is serialized non-JSON data. */
+            $rootCause = $e->getMessageContext()['rootCause'];
+
             if (
                 is_string($value)
-                && $e->rootCause->keyword() == 'type'
-                && in_array(
-                    $e->rootCause->args()['expected'],
-                    ['array', 'object']
-                )
+                && $rootCause->keyword() == 'type'
+                && in_array($rootCause->args()['expected'], ['array', 'object'])
             ) {
                 return;
             }
