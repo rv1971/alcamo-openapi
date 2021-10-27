@@ -84,7 +84,7 @@ class Validator extends ValidatorBase
              *  fails. */
 
             $context = [
-                'inData' => $error->data()->value(),
+                'inData' => $rootCause->data()->value(),
                 'error' => $error,
                 'rootCause' => $rootCause,
                 'extraMessage' => lcfirst(
@@ -93,7 +93,16 @@ class Validator extends ValidatorBase
             ];
 
             if ($data instanceof JsonNode) {
-                $context['atUri'] = $data->getUri();
+                $context['atUri'] = $data->getUri(
+                    implode(
+                        '/',
+                        str_replace(
+                            [ '~', '/' ],
+                            [ '~0', '~1' ],
+                            $rootCause->data()->fullpath()
+                        )
+                    )
+                );
             }
 
             throw (new DataValidationFailed())->setMessageContext($context);
