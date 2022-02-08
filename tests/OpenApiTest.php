@@ -2,9 +2,9 @@
 
 namespace alcamo\openapi;
 
-use alcamo\exception\{AbsoluteUriNeeded, DataValidationFailed};
+use alcamo\exception\{AbsoluteUriNeeded, DataValidationFailed, SyntaxError};
 use alcamo\ietf\UriFactory;
-use PHPUnit\Framework\{Exception, TestCase};
+use PHPUnit\Framework\TestCase;
 
 class OpenApiTest extends TestCase
 {
@@ -66,7 +66,8 @@ class OpenApiTest extends TestCase
 
     public function testInvalidOpenApiVersion()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(SyntaxError::class);
+        $this->expectExceptionMessage('Undefined index: 0.0');
 
         $this->createFromUrl(
             self::OPENAPI_INVALID_DIR . 'openapi-version.json'
