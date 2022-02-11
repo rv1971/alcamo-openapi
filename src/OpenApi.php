@@ -5,6 +5,7 @@ namespace alcamo\openapi;
 use alcamo\exception\{AbsoluteUriNeeded, DataValidationFailed};
 use alcamo\ietf\Uri;
 use alcamo\json\{
+    JsonDocumentInterface,
     JsonNode,
     RecursiveWalker,
     ReferenceResolver,
@@ -23,7 +24,7 @@ use Psr\Http\Message\UriInterface;
  * - getClassValidator()
  * - getValidator()
  */
-class OpenApi extends OpenApiNode
+class OpenApi extends OpenApiNode implements JsonDocumentInterface
 {
     use TypedNodeDocumentTrait;
 
