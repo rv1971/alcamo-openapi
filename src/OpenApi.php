@@ -144,7 +144,8 @@ class OpenApi extends OpenApiNode implements JsonDocumentInterface
      */
     public function __construct(
         $data,
-        UriInterface $baseUri
+        UriInterface $baseUri,
+        $resolver = ReferenceResolver::RESOLVE_EXTERNAL
     ) {
         if (!Uri::isAbsolute($baseUri)) {
             /** @throw alcamo::exception::AbsoluteUriNeeded if the base URI is
@@ -156,7 +157,7 @@ class OpenApi extends OpenApiNode implements JsonDocumentInterface
 
         parent::__construct($data, $baseUri);
 
-        $this->resolveReferences(ReferenceResolver::RESOLVE_EXTERNAL);
+        $this->resolveReferences($resolver);
 
         $this->openApiVersion_ =
             substr($this->openapi, 0, strrpos($this->openapi, '.'));
