@@ -3,7 +3,7 @@
 namespace alcamo\openapi;
 
 use alcamo\iana\MediaType;
-use alcamo\ietf\Uri;
+use alcamo\uri\Uri;
 use Psr\Http\Message\UriInterface;
 
 class Example extends OpenApiNode

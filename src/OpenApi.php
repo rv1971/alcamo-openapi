@@ -3,7 +3,7 @@
 namespace alcamo\openapi;
 
 use alcamo\exception\{AbsoluteUriNeeded, DataValidationFailed};
-use alcamo\ietf\Uri;
+use alcamo\uri\Uri;
 use alcamo\json\{
     JsonDocumentInterface,
     JsonNode,

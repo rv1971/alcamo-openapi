@@ -2,7 +2,7 @@
 
 namespace alcamo\openapi;
 
-use alcamo\ietf\UriFactory;
+use alcamo\uri\FileUriFactory;
 use alcamo\xml_creation\Nodes;
 use PHPUnit\Framework\TestCase;
 
@@ -30,13 +30,13 @@ class InfoTest extends TestCase
         $factory = new OpenApiFactory();
 
         $minimal = $factory->createFromUrl(
-            (new UriFactory())->createFromFilesystemPath(
+            (new FileUriFactory())->create(
                 __DIR__ . DIRECTORY_SEPARATOR . 'openapi-minimal.json'
             )
         );
 
         $minimal31 = $factory->createFromUrl(
-            (new UriFactory())->createFromFilesystemPath(
+            (new FileUriFactory())->create(
                 __DIR__ . DIRECTORY_SEPARATOR . 'openapi-3.1.json'
             )
         );

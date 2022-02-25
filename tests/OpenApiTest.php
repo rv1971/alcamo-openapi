@@ -3,7 +3,7 @@
 namespace alcamo\openapi;
 
 use alcamo\exception\{AbsoluteUriNeeded, DataValidationFailed, SyntaxError};
-use alcamo\ietf\UriFactory;
+use alcamo\uri\FileUriFactory;
 use PHPUnit\Framework\TestCase;
 
 class OpenApiTest extends TestCase
@@ -19,7 +19,7 @@ class OpenApiTest extends TestCase
         $factory = new OpenApiFactory();
 
         $openApi = $factory->createFromUrl(
-            (new UriFactory())->createFromFilesystemPath(self::OPENAPI_FILENAME)
+            (new FileUriFactory())->create(self::OPENAPI_FILENAME)
         );
 
         $this->assertInstanceOf(OpenApi::class, $openApi);
@@ -56,7 +56,7 @@ class OpenApiTest extends TestCase
         $factory = new OpenApiFactory();
 
         $openApi = $factory->createFromUrl(
-            (new UriFactory())->createFromFilesystemPath(
+            (new FileUriFactory())->create(
                 __DIR__ . DIRECTORY_SEPARATOR . 'openapi-minimal.json'
             )
         );
@@ -152,8 +152,7 @@ class OpenApiTest extends TestCase
 
         $validator = $factory
             ->createFromUrl(
-                (new UriFactory())
-                    ->createFromFilesystemPath(self::OPENAPI_FILENAME)
+                (new FileUriFactory())->create(self::OPENAPI_FILENAME)
             )
             ->getValidator();
 
@@ -175,7 +174,7 @@ class OpenApiTest extends TestCase
     private function createFromUrl($path)
     {
         return (new OpenApiFactory())->createFromUrl(
-            (new UriFactory())->createFromFilesystemPath($path)
+            (new FileUriFactory())->create($path)
         );
     }
 }

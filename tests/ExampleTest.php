@@ -2,7 +2,7 @@
 
 namespace alcamo\openapi;
 
-use alcamo\ietf\UriFactory;
+use alcamo\uri\FileUriFactory;
 use PHPUnit\Framework\TestCase;
 
 class ExampleTest extends TestCase
@@ -15,7 +15,7 @@ class ExampleTest extends TestCase
         $factory = new OpenApiFactory();
 
         $openApi = $factory->createFromUrl(
-            (new UriFactory())->createFromFilesystemPath(self::OPENAPI_FILENAME)
+            (new FileUriFactory())->create(self::OPENAPI_FILENAME)
         );
 
         $examples = $openApi->paths->{'/pet/findByStatus'}
