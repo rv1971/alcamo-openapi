@@ -13,11 +13,11 @@ class Schema extends SchemaNode implements HasExampleInterface
 {
     public const CLASS_MAP =
         [
-        'properties'    => SchemaMap::class,
-        'discriminator' => Discriminator::class,
-        'xml'           => Xml::class,
-        'externalDocs'  => ExternalDocumentation::class,
-        'example'       => OpenApiNode::class
+            'properties'    => SchemaMap::class,
+            'discriminator' => Discriminator::class,
+            'xml'           => Xml::class,
+            'externalDocs'  => ExternalDocumentation::class,
+            'example'       => OpenApiNode::class
         ]
         + parent::CLASS_MAP;
 }
