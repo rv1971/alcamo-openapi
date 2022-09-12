@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<s:document xmlns="tag:rv1971@web.de,2021:alcamo-json:j2d/object" xmlns:s="tag:rv1971@web.de,2021:alcamo-json:j2d/structure" xml:base="file:///home/rve/src/alcamo-openapi/tests/openapi-markdown.json">
+  <openapi jsonPtr="/openapi">3.0.3</openapi>
+  <info jsonPtr="/info">
+    <title jsonPtr="/info/title">Minimal OpenAPI document with markup</title>
+    <o:description xmlns="http://www.w3.org/1999/xhtml" xmlns:o="tag:rv1971@web.de,2021:alcamo-json:j2d/object" jsonPtr="/info/description"><ul>
+<li>
+<a href="https://loremipsum.de/">Lorem ipsum</a> <em>dolor</em> sit <strong>amet,</strong> consetetur <code>sadipscing</code> elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.</li>
+<li>At vero eos et accusam et justo duo dolores et ea rebum.</li>
+</ul>
+<p>Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
+</o:description>
+    <contact jsonPtr="/info/contact">
+      <email jsonPtr="/info/contact/email">alice@example.com</email>
+    </contact>
+    <version jsonPtr="/info/version">1.0.0</version>
+    <x-dc-identifier jsonPtr="/info/x-dc-identifier">minimal</x-dc-identifier>
+    <x-dc-created jsonPtr="/info/x-dc-created">2022-09-12</x-dc-created>
+    <x-dc-modified jsonPtr="/info/x-dc-modified">2022-09-12</x-dc-modified>
+    <x-dc-language jsonPtr="/info/x-dc-language">en</x-dc-language>
+  </info>
+  <externalDocs jsonPtr="/externalDocs">
+    <o:description xmlns="http://www.w3.org/1999/xhtml" xmlns:o="tag:rv1971@web.de,2021:alcamo-json:j2d/object" jsonPtr="/externalDocs/description"><p>Githib repository</p>
+</o:description>
+    <url jsonPtr="/externalDocs/url">https://github.com/rv1971/alcamo-openapi</url>
+  </externalDocs>
+  <paths jsonPtr="/paths"/>
+</s:document>

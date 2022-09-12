@@ -1,0 +1,21 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "Minimal OpenAPI document with markup",
+        "description": "* [Lorem ipsum](https://loremipsum.de/) *dolor* sit **amet,** consetetur `sadipscing` elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.\n* At vero eos et accusam et justo duo dolores et ea rebum.\n\n Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
+        "contact": {
+            "email": "alice@example.com"
+        },
+        "version": "1.0.0",
+        "x-dc-identifier": "minimal",
+        "x-dc-created": "2022-09-12",
+        "x-dc-modified": "2022-09-12",
+        "x-dc-language": "en"
+    },
+    "externalDocs": {
+        "description": "Githib repository",
+        "url": "https://github.com/rv1971/alcamo-openapi"
+    },
+    "paths": {
+    }
+}
