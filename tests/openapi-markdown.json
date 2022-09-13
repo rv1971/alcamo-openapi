@@ -17,5 +17,21 @@
         "url": "https://github.com/rv1971/alcamo-openapi"
     },
     "paths": {
+    },
+    "components": {
+        "examples": {
+            "foo": {
+                "summary": "Foo",
+                "description": "At vero eos et *accusam* et justo duo dolores et ea rebum.",
+                "value": {
+                    "e": 2.71,
+                    "pi": 3.14
+                }
+            },
+            "bar": {
+                "summary": "Bar",
+                "value": [ "baz", "qux" ]
+            }
+        }
     }
 }

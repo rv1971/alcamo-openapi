@@ -2,7 +2,7 @@
 
 namespace alcamo\openapi;
 
-use alcamo\json\Json2Dom;
+use alcamo\json\{Json2Dom, JsonNode};
 use League\CommonMark\CommonMarkConverter;
 
 class OpenApi2Dom extends Json2Dom
@@ -16,6 +16,76 @@ class OpenApi2Dom extends Json2Dom
         parent::__construct($flags);
 
         $this->converter_ = new CommonMarkConverter();
+    }
+
+    public function appendJsonNode(
+        \DOMNode $domNode,
+        JsonNode $jsonNode,
+        string $nsName,
+        string $qName,
+        ?string $origName = null
+    ): void {
+        /** Do not transform JSON objects which are examples. */
+        if ($qName == 'value') {
+            $a = explode('/', $jsonNode->getJsonPtr());
+
+            if ($a[count($a) - 3] == 'examples') {
+                $this->appendValue(
+                    $domNode,
+                    json_encode($jsonNode, JSON_PRETTY_PRINT),
+                    $nsName,
+                    $qName,
+                    $jsonNode->getJsonPtr(),
+                    $origName
+                );
+
+                return;
+            }
+        }
+
+        parent::appendJsonNode(
+            $domNode,
+            $jsonNode,
+            $nsName,
+            $qName,
+            $origName
+        );
+    }
+
+    public function appendArray(
+        \DOMNode $domNode,
+        array $jsonArray,
+        string $nsName,
+        string $qName,
+        string $jsonPtr,
+        ?string $origName = null
+    ): void {
+        /** Do not transform JSON arrays which are examples. */
+        if ($qName == 'value') {
+            $a = explode('/', $jsonPtr);
+
+            if ($a[count($a) - 3] == 'examples') {
+                $this->appendValue(
+                    $domNode,
+                    json_encode($jsonArray, JSON_PRETTY_PRINT),
+                    $nsName,
+                    $qName,
+                    $jsonPtr,
+                    $origName
+                );
+
+                return;
+            }
+        }
+
+        parent::appendArray(
+            $domNode,
+            $jsonArray,
+            $nsName,
+            $qName,
+            $jsonPtr,
+            $origName
+        );
     }
 
     public function appendValue(

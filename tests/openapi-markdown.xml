@@ -25,4 +25,24 @@
     <url jsonPtr="/externalDocs/url">https://github.com/rv1971/alcamo-openapi</url>
   </externalDocs>
   <paths jsonPtr="/paths"/>
+  <components jsonPtr="/components">
+    <examples jsonPtr="/components/examples">
+      <foo jsonPtr="/components/examples/foo">
+        <summary jsonPtr="/components/examples/foo/summary">Foo</summary>
+        <o:description xmlns="http://www.w3.org/1999/xhtml" xmlns:o="tag:rv1971@web.de,2021:alcamo-json:j2d/object" jsonPtr="/components/examples/foo/description"><p>At vero eos et <em>accusam</em> et justo duo dolores et ea rebum.</p>
+</o:description>
+        <value jsonPtr="/components/examples/foo/value">{
+    "e": 2.71,
+    "pi": 3.14
+}</value>
+      </foo>
+      <bar jsonPtr="/components/examples/bar">
+        <summary jsonPtr="/components/examples/bar/summary">Bar</summary>
+        <value jsonPtr="/components/examples/bar/value">[
+    "baz",
+    "qux"
+]</value>
+      </bar>
+    </examples>
+  </components>
 </s:document>
