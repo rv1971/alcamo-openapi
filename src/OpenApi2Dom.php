@@ -117,7 +117,7 @@ class OpenApi2Dom extends Json2Dom
                 . "</o:$localName>"
             );
 
-            $this->addAttributes($fragment->firstChild, $jsonPtr, $origName);
+            $this->addAttributes($fragment->firstChild, $value, $jsonPtr, $origName);
 
             $domNode->appendChild($fragment);
         } else {
