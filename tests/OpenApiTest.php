@@ -134,18 +134,6 @@ class OpenApiTest extends TestCase
         );
     }
 
-    public function testInvalidInforMetadata()
-    {
-        $this->expectException(DataValidationFailed::class);
-        $this->expectExceptionMessage(
-            "the required properties (x-dc-language) are missing"
-        );
-
-        $doc = $this->createFromUrl(
-            self::OPENAPI_INVALID_DIR . 'info-metadata.json'
-        );
-    }
-
     public function testGetValidator()
     {
         $factory = new OpenApiFactory();

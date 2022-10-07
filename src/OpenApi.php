@@ -67,26 +67,11 @@ class OpenApi extends OpenApiNode implements JsonDocumentInterface
     /**
      * @brief Paths to additional schema files
      *
+     * Used by getClassValidator().
+     *
      * This constant may be refined in child classes.
      */
-    public const SCHEMAS = [
-        self::SCHEMA_BASE_URI . 'extension:info.metadata'
-        => self::SCHEMA_DIR . 'extension.info.metadata.json'
-    ];
-
-    /**
-     * @brief Pairs of JSON pointers and applicable schema IDs
-     *
-     * If no node exists for a JSON pointer, the entry is ignored.
-     *
-     * This constant may be refined in child classes. The only purpose of the
-     * non-numeric keys is to simplify re-use of rules in child classes;
-     * besides that, the keys have no meaning.
-     */
-    public const EXTRA_VALIDATION_RULES = [
-        self::SCHEMA_BASE_URI . 'validation-rule:info'
-        => [ '/info', self::SCHEMA_BASE_URI . 'extension:info.metadata' ]
-    ];
+    public const SCHEMAS = [];
 
     /// Class-independent validator
     private static $globalValidator_;
@@ -139,8 +124,6 @@ class OpenApi extends OpenApiNode implements JsonDocumentInterface
      * - performs OpenAPI 3.0 specific adjustments (see adjustForOpenApi30())
      * - validates the document
      * - validates the examples in the document
-     * - validates (parts of) the document against extensions as specified
-     * by @ref EXTRA_VALIDATION_RULES.
      */
     public function __construct(
         $data,
@@ -176,8 +159,6 @@ class OpenApi extends OpenApiNode implements JsonDocumentInterface
         $this->validator_->resolver()->registerRaw($this, $this->getBaseUri());
 
         $this->validateExamples();
-
-        $this->validateExtensions();
     }
 
     /**
@@ -317,20 +298,6 @@ class OpenApi extends OpenApiNode implements JsonDocumentInterface
             }
 
             throw $e;
-        }
-    }
-
-    protected function validateExtensions()
-    {
-        $validator = $this->getClassValidator();
-
-        foreach (static::EXTRA_VALIDATION_RULES as $pair) {
-            [ $jsonPtr, $schemaId ] = $pair;
-
-            try {
-                $validator->validate($this->getNode($jsonPtr), $schemaId);
-            } catch (NodeNotFound $e) {
-            }
         }
     }
 }

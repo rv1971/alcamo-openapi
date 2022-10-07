@@ -48,12 +48,7 @@ class InfoTest extends TestCase
                 . '<span property="owl:versionInfo">1.0.0</span>'
                 . '<a rel="dc:conformsTo" '
                 . 'href="https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.3.md">OpenAPI 3.0.3</a>'
-                . '<a rel="dc:creator author" href="mailto:alice@example.com">Creator</a>'
                 . '<span property="dc:type">Text</span>'
-                . '<span property="dc:identifier">minimal</span>'
-                . '<span property="dc:created">2021-09-24T00:00:00+00:00</span>'
-                . '<span property="dc:modified">2021-10-01T00:00:00+00:00</span>'
-                . '<span property="dc:language">en</span>'
             ],
             [
                 $minimal31,
