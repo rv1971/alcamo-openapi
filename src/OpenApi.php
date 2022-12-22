@@ -85,6 +85,9 @@ class OpenApi extends OpenApiNode implements JsonDocumentInterface
     /// Document-specific validator
     private $validator_;
 
+    /// Map of operation IDs to Operation objects
+    private $operations_ = [];
+
     /**
      * @brief Global validator for all instances of all derived classes
      *
@@ -159,6 +162,8 @@ class OpenApi extends OpenApiNode implements JsonDocumentInterface
         $this->validator_->resolver()->registerRaw($this, $this->getBaseUri());
 
         $this->validateExamples();
+
+        $this->validateLinks();
     }
 
     /**
@@ -190,6 +195,29 @@ class OpenApi extends OpenApiNode implements JsonDocumentInterface
         return $this;
     }
 
+    public function addOperation(Operation $operation): void
+    {
+        if (
+            isset($this->operations_[$operation->operationId])
+            && $this->operations_[$operation->operationId] !== $operation
+        ) {
+            throw (new DataValidationFailed())->setMessageContext(
+                [
+                    'atUri' => $this->getUri(),
+                    'inData' => $operation,
+                    'extraMessage' => "attept to redefine operation ID \"$operation->operationId\""
+                ]
+            );
+        }
+
+        $this->operations_[$operation->operationId] = $operation;
+    }
+
+    public function getOperation(string $id): Operation
+    {
+        return $this->operations_[$id];
+    }
+
     /// Remove some metadata of newer schemas not supported in OpenAPI 3.0
     protected function adjustForOpenApi30(): void
     {
@@ -217,6 +245,23 @@ class OpenApi extends OpenApiNode implements JsonDocumentInterface
             $this->createDeepCopy(),
             self::OPENAPI_VERSIONS[$this->openApiVersion_]
         );
+    }
+
+    protected function validateLinks(): void
+    {
+        foreach (
+            new RecursiveWalker(
+                $this,
+                RecursiveWalker::JSON_OBJECTS_ONLY
+            ) as $node
+        ) {
+            if (!$node instanceof Link) {
+                continue;
+            }
+
+            /** @throw If not a valid target. */
+            $node->getTarget();
+        }
     }
 
     protected function validateExamples(): void

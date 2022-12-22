@@ -1,0 +1,29 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "Duplicate operation ID",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/pet/findByStatus": {
+            "get": {
+                "operationId": "findPetsByStatus",
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    }
+                }
+            }
+        },
+        "/pet/findByStatus2": {
+            "get": {
+                "operationId": "findPetsByStatus",
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    }
+                }
+            }
+        }
+    }
+}

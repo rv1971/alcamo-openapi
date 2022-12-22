@@ -3,6 +3,7 @@
 namespace alcamo\openapi;
 
 use alcamo\exception\{AbsoluteUriNeeded, DataValidationFailed, SyntaxError};
+use alcamo\json\exception\NodeNotFound;
 use alcamo\uri\FileUriFactory;
 use PHPUnit\Framework\TestCase;
 
@@ -39,6 +40,11 @@ class OpenApiTest extends TestCase
         $this->assertInstanceOf(
             Schema::class,
             $openApi->components->schemas->Order->properties->id
+        );
+
+        $this->assertSame(
+            'Finds Pets by status',
+            $openApi->getOperation('findPetsByStatus')->summary
         );
     }
 
@@ -131,6 +137,39 @@ class OpenApiTest extends TestCase
 
         $doc = $this->createFromUrl(
             self::OPENAPI_INVALID_DIR . 'media-type-external-examples.json'
+        );
+    }
+
+    public function testDuplicateOpeationId()
+    {
+        $this->expectException(DataValidationFailed::class);
+        $this->expectExceptionMessage(
+            'attept to redefine operation ID "findPetsByStatus"'
+        );
+
+        $doc = $this->createFromUrl(
+            self::OPENAPI_INVALID_DIR . 'duplicate-operation-id.json'
+        );
+    }
+
+    public function testUnknownOperationIdInLink()
+    {
+        $this->expectException(DataValidationFailed::class);
+        $this->expectExceptionMessage(
+            'unknown operation ID "nextStep"'
+        );
+
+        $doc = $this->createFromUrl(
+            self::OPENAPI_INVALID_DIR . 'unknown-operation-id-in-link.json'
+        );
+    }
+
+    public function testUnknownOperationRefInLink()
+    {
+        $this->expectException(NodeNotFound::class);
+
+        $doc = $this->createFromUrl(
+            self::OPENAPI_INVALID_DIR . 'unknown-operation-ref-in-link.json'
         );
     }
 

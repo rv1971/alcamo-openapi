@@ -1,0 +1,23 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "Unknown operation reference in link",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/pet/findByStatus": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "links": {
+                            "next-step": {
+                                "operationRef": "#/paths/~1/next-step/post"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
