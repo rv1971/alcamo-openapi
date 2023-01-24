@@ -21,7 +21,7 @@
         "php": "7.3 - 8.0",
         "alcamo/exception": "^0.1",
         "alcamo/json": "^0.9",
-        "alcamo/rdfa": "^0.7",
+        "alcamo/rdfa": "^0.8",
         "league/commonmark": "^1.6",
         "opis/string": "2.0.2",
         "opis/uri": "1.1.1",

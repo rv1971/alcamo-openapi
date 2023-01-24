@@ -2,6 +2,7 @@
 
 namespace alcamo\openapi;
 
+use alcamo\rdfa\{Node, RdfaData};
 use alcamo\uri\FileUriFactory;
 use alcamo\xml_creation\Nodes;
 use PHPUnit\Framework\TestCase;
@@ -11,17 +12,11 @@ class InfoTest extends TestCase
     /**
      * @dataProvider getRdfaDataProvider
      */
-    public function testGetRdfaData($openApi, $expectedHtml)
+    public function testGetRdfaData($openApi, $expectedRdfaInputData): void
     {
-        $html = [];
-
-        foreach ($openApi->info->getRdfaData() as $stmt) {
-            $html[] = $stmt->toVisibleHtmlNodes(true);
-        }
-
         $this->assertEquals(
-            $expectedHtml,
-            (string)(new Nodes($html))
+            RdfaData::newFromIterable($expectedRdfaInputData),
+            $openApi->info->getRdfaData()
         );
     }
 
@@ -44,24 +39,36 @@ class InfoTest extends TestCase
         return [
             [
                 $minimal,
-                '<span property="dc:title">Minimal OpenAPI document</span>'
-                . '<span property="owl:versionInfo">1.0.0</span>'
-                . '<a rel="dc:conformsTo" '
-                . 'href="https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.3.md">OpenAPI 3.0.3</a>'
-                . '<span property="dc:type">Text</span>'
+                [
+                    'dc:title' => 'Minimal OpenAPI document',
+                    'owl:versionInfo' => '1.0.0',
+                    'dc:conformsTo' => new Node(
+                        'https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.3.md',
+                        RdfaData::newFromIterable(
+                            [ 'dc:title' => 'OpenAPI 3.0.3' ]
+                        )
+                    ),
+                    'dc:type' => 'Text'
+                ]
             ],
             [
                 $minimal31,
-                '<span property="dc:title">Minimal OpenAPI 3.1 document</span>'
-                . '<span property="owl:versionInfo">1.2.3</span>'
-                . '<a rel="dc:conformsTo" '
-                . 'href="https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md">OpenAPI 3.1.0</a>'
-                . '<a rel="dc:creator author" href="mailto:bob@example.com">Creator</a>'
-                . '<span property="dc:type">Text</span>'
-                . '<span property="dc:identifier">minimal-3.1</span>'
-                . '<span property="dc:created">2021-10-04T00:00:00+00:00</span>'
-                . '<span property="dc:modified">2021-10-04T00:00:00+00:00</span>'
-                . '<span property="dc:language">en</span>'
+                [
+                    'dc:title' => 'Minimal OpenAPI 3.1 document',
+                    'owl:versionInfo' => '1.2.3',
+                    'dc:conformsTo' => new Node(
+                        'https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md',
+                        RdfaData::newFromIterable(
+                            [ 'dc:title' => 'OpenAPI 3.1.0' ]
+                        )
+                    ),
+                    'dc:type' => 'Text',
+                    'dc:identifier' => 'minimal-3.1',
+                    'dc:created' => '2021-10-04Z',
+                    'dc:modified' => '2021-10-04Z',
+                    'dc:language' => 'en',
+                    'dc:creator' => new Node('mailto:bob@example.com')
+                ]
             ]
         ];
     }

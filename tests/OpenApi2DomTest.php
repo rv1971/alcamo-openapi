@@ -23,10 +23,15 @@ class OpenApi2DomTest extends TestCase
 
         $domDocument = new \DOMDocument();
 
-        $domDocument->load(self::XML_FILENAME);
+        $domText = str_replace(
+            '$(base)',
+            (new FileUriFactory())->create(self::OPENAPI_FILENAME),
+            file_get_contents(self::XML_FILENAME)
+        );
+
+        $domDocument->loadXML($domText);
 
         $domDocument->formatOutput = true;
-
 
         $openApi2Dom = new OpenApi2Dom(OpenApi2Dom::JSON_PTR_ATTRS);
 

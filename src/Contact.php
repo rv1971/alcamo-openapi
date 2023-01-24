@@ -2,7 +2,7 @@
 
 namespace alcamo\openapi;
 
-use alcamo\rdfa\DcCreator;
+use alcamo\rdfa\{DcCreator, Node, RdfaData};
 
 class Contact extends OpenApiNode
 {
@@ -10,11 +10,28 @@ class Contact extends OpenApiNode
     {
         switch (true) {
             case isset($this->url):
-                return new DcCreator($this->url, $this->name ?? true);
+                return new DcCreator(
+                    new Node(
+                        $this->url,
+                        isset($this->name)
+                        ? RdfaData::newFromIterable(
+                            [ 'dc:title' => $this->name ]
+                        )
+                        : null
+                    )
+                );
 
             case isset($this->email):
-                return
-                    new DcCreator("mailto:$this->email", $this->name ?? true);
+                return new DcCreator(
+                    new Node(
+                        "mailto:$this->email",
+                        isset($this->name)
+                        ? RdfaData::newFromIterable(
+                            [ 'dc:title' => $this->name ]
+                        )
+                        : null
+                    )
+                );
 
             default:
                 return new DcCreator($this->name);

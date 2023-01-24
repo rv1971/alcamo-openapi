@@ -2,7 +2,7 @@
 
 namespace alcamo\openapi;
 
-use alcamo\rdfa\RdfaData;
+use alcamo\rdfa\{Node, RdfaData};
 
 class Info extends OpenApiNode
 {
@@ -30,15 +30,15 @@ class Info extends OpenApiNode
             $rdfaProps = [
                 'dc:title' => $this->title,
                 'owl:versionInfo' => $this->version,
-                'dc:conformsTo' => [
-                    [
-                        sprintf(
-                            self::OPEN_API_VERSION_URI_FORMAT,
-                            $openApiVersion
-                        ),
-                        "OpenAPI $openApiVersion"
-                    ]
-                ]
+                'dc:conformsTo' => new Node(
+                    sprintf(
+                        self::OPEN_API_VERSION_URI_FORMAT,
+                        $openApiVersion
+                    ),
+                    RdfaData::newFromIterable(
+                        [ 'dc:title' => "OpenAPI $openApiVersion" ]
+                    )
+                )
             ];
 
             if (isset($this->contact)) {

@@ -2,7 +2,7 @@
 
 namespace alcamo\openapi;
 
-use alcamo\iana\MediaType;
+use alcamo\rdfa\MediaType;
 use alcamo\uri\Uri;
 use Psr\Http\Message\UriInterface;
 
