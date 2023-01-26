@@ -6,6 +6,6 @@ class Server extends OpenApiNode
 {
     public const CLASS_MAP = [
         'variables' => ServerVariables::class,
-        '*' => OpenApiNode::class // for extensions
+        '*'         => OpenApiNode::class // for extensions
     ];
 }

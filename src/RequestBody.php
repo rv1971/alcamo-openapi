@@ -6,6 +6,6 @@ class RequestBody extends OpenApiNode
 {
     public const CLASS_MAP = [
         'content' => MediaTypes::class,
-        '*' => OpenApiNode::class // for extensions
+        '*'       => OpenApiNode::class // for extensions
     ];
 }

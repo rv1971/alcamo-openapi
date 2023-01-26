@@ -17,7 +17,8 @@ class Schema extends SchemaNode implements HasExampleInterface
             'discriminator' => Discriminator::class,
             'xml'           => Xml::class,
             'externalDocs'  => ExternalDocumentation::class,
-            'example'       => OpenApiNode::class
+            'example'       => OpenApiNode::class,
+            '*'             => OpenApiNode::class // for extensions
         ]
         + parent::CLASS_MAP;
 }

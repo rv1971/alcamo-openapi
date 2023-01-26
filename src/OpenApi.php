@@ -36,7 +36,7 @@ class OpenApi extends OpenApiNode implements JsonDocumentInterface
         'security'     => [ '*' => SecurityRequirement::class ],
         'tags'         => [ '*' => Tag::class ],
         'externalDocs' => ExternalDocs::class,
-        '*'            => OpenApiNode::class
+        '*'            => OpenApiNode::class // for extensions
     ];
 
     /// Base URI used in IDs of bundled schemas
