@@ -185,8 +185,10 @@ class OpenApi extends OpenApiNode implements JsonDocumentInterface
             new RecursiveWalker(
                 $this,
                 RecursiveWalker::JSON_OBJECTS_ONLY
-            ) as $node
+            ) as $pair
         ) {
+            [ , $node ] = $pair;
+
             if (isset($node->externalValue)) {
                 $node->resolveExternalValue();
             }
@@ -225,8 +227,10 @@ class OpenApi extends OpenApiNode implements JsonDocumentInterface
             new RecursiveWalker(
                 $this,
                 RecursiveWalker::JSON_OBJECTS_ONLY
-            ) as $node
+            ) as $pair
         ) {
+            [ , $node ] = $pair;
+
             if (!($node instanceof Schema)) {
                 continue;
             }
@@ -253,8 +257,10 @@ class OpenApi extends OpenApiNode implements JsonDocumentInterface
             new RecursiveWalker(
                 $this,
                 RecursiveWalker::JSON_OBJECTS_ONLY
-            ) as $node
+            ) as $pair
         ) {
+            [ , $node ] = $pair;
+
             if (!$node instanceof Link) {
                 continue;
             }
@@ -270,8 +276,10 @@ class OpenApi extends OpenApiNode implements JsonDocumentInterface
             new RecursiveWalker(
                 $this,
                 RecursiveWalker::JSON_OBJECTS_ONLY
-            ) as $node
+            ) as $pair
         ) {
+            [ , $node ] = $pair;
+
             if (!$node instanceof HasExampleInterface) {
                 continue;
             }
