@@ -53,7 +53,7 @@ class Example extends OpenApiNode
                 if ($this->getExternalValueMediaType() == 'application/json') {
                     $this->externalValueContent_ =
                         $this->createNode(
-                            $this->getJsonPtr() . '/value',
+                            $this->getJsonPtr()->appendSegment('value'),
                             $this->getOwnerDocument()->getDocumentFactory()
                                 ->decodeJson(
                                     file_get_contents($this->externalValueUrl_)

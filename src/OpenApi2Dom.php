@@ -2,7 +2,7 @@
 
 namespace alcamo\openapi;
 
-use alcamo\json\{Json2Dom, JsonNode};
+use alcamo\json\{Json2Dom, JsonNode, JsonPtr};
 use League\CommonMark\CommonMarkConverter;
 
 class OpenApi2Dom extends Json2Dom
@@ -27,9 +27,9 @@ class OpenApi2Dom extends Json2Dom
     ): void {
         /** Do not transform JSON objects which are examples. */
         if ($qName == 'value') {
-            $a = explode('/', $jsonNode->getJsonPtr());
+            $jsonPtr = $jsonNode->getJsonPtr();
 
-            if ($a[count($a) - 3] == 'examples') {
+            if ($jsonPtr[count($jsonPtr) - 3] == 'examples') {
                 $this->appendValue(
                     $domNode,
                     json_encode($jsonNode, JSON_PRETTY_PRINT),
@@ -57,14 +57,12 @@ class OpenApi2Dom extends Json2Dom
         array $jsonArray,
         string $nsName,
         string $qName,
-        string $jsonPtr,
+        JsonPtr $jsonPtr,
         ?string $origName = null
     ): void {
         /** Do not transform JSON arrays which are examples. */
         if ($qName == 'value') {
-            $a = explode('/', $jsonPtr);
-
-            if ($a[count($a) - 3] == 'examples') {
+            if ($jsonPtr[count($jsonPtr) - 3] == 'examples') {
                 $this->appendValue(
                     $domNode,
                     json_encode($jsonArray, JSON_PRETTY_PRINT),
@@ -93,7 +91,7 @@ class OpenApi2Dom extends Json2Dom
         $value,
         string $nsName,
         string $localName,
-        string $jsonPtr,
+        JsonPtr $jsonPtr,
         ?string $origName = null
     ): void {
         /** For `description` attributes, convert CommonMark to HTML. */

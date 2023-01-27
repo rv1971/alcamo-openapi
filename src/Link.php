@@ -3,6 +3,7 @@
 namespace alcamo\openapi;
 
 use alcamo\exception\{DataValidationFailed, Unsupported};
+use alcamo\json\JsonPtr;
 
 class Link extends OpenApiNode
 {
@@ -33,8 +34,9 @@ class Link extends OpenApiNode
                 if ($this->operationRef[0] == '#') {
                     /** @throw alcamo::json::exception::NodeNotFound if there
                      *  is no node for the given local URL. */
-                    $this->target_ = $this->getOwnerDocument()
-                        ->getNode(substr($this->operationRef, 1));
+                    $this->target_ = $this->getOwnerDocument()->getNode(
+                        JsonPtr::newFromString(substr($this->operationRef, 1))
+                    );
                 } else {
                     /** @throw alcamo::json::exception::Unsupported if
                      *  `operationRef` points to a different document. (A good
