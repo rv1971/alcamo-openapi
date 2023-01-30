@@ -22,9 +22,10 @@ class Operation extends OpenApiNode
         object $data,
         ?UriInterface $baseUri = null,
         ?JsonNode $ownerDocument = null,
-        ?JsonPtr $jsonPtr = null
+        ?JsonPtr $jsonPtr = null,
+        ?JsonNode $parent = null
     ) {
-        parent::__construct($data, $baseUri, $ownerDocument, $jsonPtr);
+        parent::__construct($data, $baseUri, $ownerDocument, $jsonPtr, $parent);
 
         if (isset($this->operationId)) {
             $ownerDocument->addOperation($this);
