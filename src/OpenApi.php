@@ -26,7 +26,9 @@ use Psr\Http\Message\UriInterface;
  */
 class OpenApi extends OpenApiNode implements JsonDocumentInterface
 {
-    use TypedNodeDocumentTrait;
+    use TypedNodeDocumentTrait {
+        __construct as documentConstruct;
+    }
 
     public const CLASS_MAP = [
         'info'         => Info::class,
@@ -141,7 +143,7 @@ class OpenApi extends OpenApiNode implements JsonDocumentInterface
                 ->setMessageContext([ 'uri' => $baseUri ]);
         }
 
-        parent::__construct($data, $baseUri);
+        $this->documentConstruct($data, $baseUri);
 
         $this->resolveReferences($resolver);
 

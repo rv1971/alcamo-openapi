@@ -2,6 +2,7 @@
 
 namespace alcamo\openapi;
 
+use alcamo\json\{JsonDocument, JsonPtr};
 use alcamo\rdfa\{DcCreator, Node, RdfaData};
 use PHPUnit\Framework\TestCase;
 
@@ -12,7 +13,13 @@ class ContactTest extends TestCase
      */
     public function testToDcCreator($jsonData, $expectedStmt): void
     {
-        $contact = new Contact(json_decode($jsonData));
+        $document = new JsonDocument((object)[]);
+
+        $contact = new Contact(
+            json_decode($jsonData),
+            $document,
+            new JsonPtr([ 'contact' ])
+        );
 
         $this->assertEquals(
             $expectedStmt,

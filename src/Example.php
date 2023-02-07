@@ -4,6 +4,7 @@ namespace alcamo\openapi;
 
 use alcamo\rdfa\MediaType;
 use alcamo\uri\Uri;
+use GuzzleHttp\Psr7\UriResolver;
 use Psr\Http\Message\UriInterface;
 
 class Example extends OpenApiNode
@@ -50,18 +51,17 @@ class Example extends OpenApiNode
     {
         if ($this->externalValueContent_ === false) {
             if (isset($this->externalValue)) {
+                $this->externalValueContent_ =
+                    file_get_contents($this->getExternalValueUrl());
+
                 if ($this->getExternalValueMediaType() == 'application/json') {
                     $this->externalValueContent_ =
                         $this->createNode(
-                            $this->getJsonPtr()->appendSegment('value'),
                             $this->getOwnerDocument()->getDocumentFactory()
-                                ->decodeJson(
-                                    file_get_contents($this->externalValueUrl_)
-                                )
+                                ->decodeJson($this->externalValueContent_),
+                            $this->getJsonPtr()->appendSegment('value'),
+                            $this
                         );
-                } else {
-                    $this->externalValueContent_ =
-                        file_get_contents($this->externalValueUrl_);
                 }
             } else {
                 $this->externalValueContent_ = null;
@@ -90,6 +90,18 @@ class Example extends OpenApiNode
             $this->value = $this->getExternalValueContent();
 
             unset($this->externalValue);
+        }
+    }
+
+    protected function rebase(UriInterface $oldBase): void
+    {
+        if (isset($this->externalValue)) {
+            $this->externalValue = (string)UriResolver::resolve(
+                $oldBase,
+                new Uri($this->externalValue)
+            );
+
+            $externalValueUrl_ = false;
         }
     }
 }

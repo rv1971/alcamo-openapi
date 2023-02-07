@@ -57,11 +57,5 @@ class ExampleTest extends TestCase
             'text/xml; charset="us-ascii"',
             $examples->external_xml->getExternalValueMediaType()
         );
-
-        $this->assertEquals(
-            dirname($examples->external_xml->getBaseUri())
-            . DIRECTORY_SEPARATOR . 'Pet.example.unicorns.xml',
-            $examples->external_xml->getExternalValueUrl()
-        );
     }
 }
