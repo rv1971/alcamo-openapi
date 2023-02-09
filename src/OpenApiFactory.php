@@ -4,9 +4,7 @@ namespace alcamo\openapi;
 
 use alcamo\json\JsonDocumentFactory;
 
-/**
- * @brief Factory for OpenApi objects
- */
+/// Factory for OpenApi documents
 class OpenApiFactory extends JsonDocumentFactory
 {
     public const DOCUMENT_CLASS = OpenApi::class;

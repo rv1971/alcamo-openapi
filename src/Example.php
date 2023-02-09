@@ -92,16 +92,4 @@ class Example extends OpenApiNode
             unset($this->externalValue);
         }
     }
-
-    protected function rebase(UriInterface $oldBase): void
-    {
-        if (isset($this->externalValue)) {
-            $this->externalValue = (string)UriResolver::resolve(
-                $oldBase,
-                new Uri($this->externalValue)
-            );
-
-            $externalValueUrl_ = false;
-        }
-    }
 }

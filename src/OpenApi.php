@@ -5,6 +5,7 @@ namespace alcamo\openapi;
 use alcamo\exception\{AbsoluteUriNeeded, DataValidationFailed};
 use alcamo\uri\Uri;
 use alcamo\json\{
+    JsonDocumentFactory,
     JsonDocumentInterface,
     JsonNode,
     RecursiveWalker,
@@ -74,6 +75,9 @@ class OpenApi extends OpenApiNode implements JsonDocumentInterface
      * This constant may be refined in child classes.
      */
     public const SCHEMAS = [];
+
+    /// DocumentFactory
+    private $documentFactory_;
 
     /// Class-independent validator
     private static $globalValidator_;
@@ -166,6 +170,15 @@ class OpenApi extends OpenApiNode implements JsonDocumentInterface
         $this->validateExamples();
 
         $this->validateLinks();
+    }
+
+    public function getDocumentFactory(): JsonDocumentFactory
+    {
+        if (!isset($this->documentFactory_)) {
+            $this->documentFactory_ = new DocumentFactory();
+        }
+
+        return $this->documentFactory_;
     }
 
     /**
