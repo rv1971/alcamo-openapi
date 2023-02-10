@@ -175,7 +175,8 @@ class OpenApi extends OpenApiNode implements JsonDocumentInterface
     public function getDocumentFactory(): JsonDocumentFactory
     {
         if (!isset($this->documentFactory_)) {
-            $this->documentFactory_ = new DocumentFactory();
+            $this->documentFactory_ =
+                new JsonDocumentFactory(JsonDocument::class);
         }
 
         return $this->documentFactory_;
