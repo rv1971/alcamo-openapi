@@ -6,7 +6,6 @@ use alcamo\exception\{AbsoluteUriNeeded, DataValidationFailed};
 use alcamo\uri\Uri;
 use alcamo\json\{
     JsonDocumentFactory,
-    JsonDocumentInterface,
     JsonNode,
     RecursiveWalker,
     ReferenceResolver,
@@ -25,22 +24,9 @@ use Psr\Http\Message\UriInterface;
  * - getClassValidator()
  * - getValidator()
  */
-class OpenApi extends OpenApiNode implements JsonDocumentInterface
+class OpenApi extends JsonDocument
 {
-    use TypedNodeDocumentTrait {
-        __construct as documentConstruct;
-    }
-
-    public const CLASS_MAP = [
-        'info'         => Info::class,
-        'servers'      => [ '*' => Server::class ],
-        'paths'        => Paths::class,
-        'components'   => Components::class,
-        'security'     => [ '*' => SecurityRequirement::class ],
-        'tags'         => [ '*' => Tag::class ],
-        'externalDocs' => ExternalDocs::class,
-        '*'            => OpenApiNode::class // for extensions
-    ];
+    public const NODE_CLASS = OpenApiRootNode::class;
 
     /// Base URI used in IDs of bundled schemas
     public const SCHEMA_BASE_URI =
@@ -76,8 +62,9 @@ class OpenApi extends OpenApiNode implements JsonDocumentInterface
      */
     public const SCHEMAS = [];
 
-    /// DocumentFactory
-    private $documentFactory_;
+    private $resolver_; ///< ReferenceResolver
+
+    private $documentFactory_; ///< DocumentFactory
 
     /// Class-independent validator
     private static $globalValidator_;
@@ -135,7 +122,7 @@ class OpenApi extends OpenApiNode implements JsonDocumentInterface
      * - validates the examples in the document
      */
     public function __construct(
-        $data,
+        ?JsonNode $root,
         UriInterface $baseUri,
         $resolver = ReferenceResolver::RESOLVE_EXTERNAL
     ) {
@@ -147,12 +134,24 @@ class OpenApi extends OpenApiNode implements JsonDocumentInterface
                 ->setMessageContext([ 'uri' => $baseUri ]);
         }
 
-        $this->documentConstruct($data, $baseUri);
+        $this->resolver_ = $resolver instanceof ReferenceResolver
+            ? $resolver
+            : new ReferenceResolver($resolver);
 
-        $this->resolveReferences($resolver);
+        parent::__construct($root, $baseUri);
+    }
 
-        $this->openApiVersion_ =
-            substr($this->openapi, 0, strrpos($this->openapi, '.'));
+    public function setRoot(JsonNode $root): void
+    {
+        $root = $this->resolver_->resolve($root);
+
+        parent::setRoot($root);
+
+        $this->openApiVersion_ = substr(
+            $root->openapi,
+            0,
+            strrpos($root->openapi, '.')
+        );
 
         if ($this->openApiVersion_ == '3.0') {
             $this->adjustForOpenApi30();
@@ -165,7 +164,8 @@ class OpenApi extends OpenApiNode implements JsonDocumentInterface
         $this->validator_->loader()
             ->setBaseUri(OpisUri::parse($this->getBaseUri()));
 
-        $this->validator_->resolver()->registerRaw($this, $this->getBaseUri());
+        $this->validator_->resolver()
+            ->registerRaw($this->getRoot(), $this->getBaseUri());
 
         $this->validateExamples();
 
@@ -221,7 +221,7 @@ class OpenApi extends OpenApiNode implements JsonDocumentInterface
         ) {
             throw (new DataValidationFailed())->setMessageContext(
                 [
-                    'atUri' => $this->getUri(),
+                    'atUri' => $this->getBaseUri(),
                     'inData' => $operation,
                     'extraMessage' => "attept to redefine operation ID \"$operation->operationId\""
                 ]
@@ -262,7 +262,7 @@ class OpenApi extends OpenApiNode implements JsonDocumentInterface
     {
         // deep copy needed because the validator sets defaults
         self::getGlobalValidator()->validate(
-            $this->createDeepCopy(),
+            $this->getRoot()->createDeepCopy(),
             self::OPENAPI_VERSIONS[$this->openApiVersion_]
         );
     }

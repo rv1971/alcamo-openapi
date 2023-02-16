@@ -16,7 +16,7 @@ class InfoTest extends TestCase
     {
         $this->assertEquals(
             RdfaData::newFromIterable($expectedRdfaInputData),
-            $openApi->info->getRdfaData()
+            $openApi->getRoot()->info->getRdfaData()
         );
     }
 

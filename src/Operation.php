@@ -2,7 +2,7 @@
 
 namespace alcamo\openapi;
 
-use alcamo\json\{JsonDocumentInterface, JsonNode, JsonPtr};
+use alcamo\json\{JsonDocument, JsonNode, JsonPtr};
 use Psr\Http\Message\UriInterface;
 
 class Operation extends OpenApiNode
@@ -20,7 +20,7 @@ class Operation extends OpenApiNode
 
     public function __construct(
         object $data,
-        JsonDocumentInterface $ownerDocument,
+        JsonDocument $ownerDocument,
         JsonPtr $jsonPtr,
         ?JsonNode $parent = null
     ) {

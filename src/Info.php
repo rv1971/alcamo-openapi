@@ -25,7 +25,7 @@ class Info extends OpenApiNode
     public function getRdfaData(): RdfaData
     {
         if (!isset($this->rdfaData_)) {
-            $openApiVersion = $this->getOwnerDocument()->openapi;
+            $openApiVersion = $this->getParent()->openapi;
 
             $rdfaProps = [
                 'dc:title' => $this->title,

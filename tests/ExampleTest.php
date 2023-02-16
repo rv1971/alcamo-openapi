@@ -18,7 +18,7 @@ class ExampleTest extends TestCase
             (new FileUriFactory())->create(self::OPENAPI_FILENAME)
         );
 
-        $examples = $openApi->paths->{'/pet/findByStatus'}
+        $examples = $openApi->getRoot()->paths->{'/pet/findByStatus'}
         ->get->responses->{'200'}->content->{'application/json'}->examples;
 
         $this->assertInstanceOf(Examples::class, $examples);

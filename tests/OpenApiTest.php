@@ -23,23 +23,26 @@ class OpenApiTest extends TestCase
             (new FileUriFactory())->create(self::OPENAPI_FILENAME)
         );
 
+
         $this->assertInstanceOf(OpenApi::class, $openApi);
 
-        $this->assertInstanceOf(Info::class, $openApi->info);
+        $root = $openApi->getRoot();
 
-        $this->assertInstanceOf(Contact::class, $openApi->info->contact);
+        $this->assertInstanceOf(Info::class, $root->info);
 
-        $this->assertInstanceOf(License::class, $openApi->info->license);
+        $this->assertInstanceOf(Contact::class, $root->info->contact);
 
-        $this->assertInstanceOf(License::class, $openApi->info->license);
+        $this->assertInstanceOf(License::class, $root->info->license);
 
-        $this->assertInstanceOf(Server::class, $openApi->servers[0]);
+        $this->assertInstanceOf(License::class, $root->info->license);
 
-        $this->assertInstanceOf(Server::class, $openApi->servers[1]);
+        $this->assertInstanceOf(Server::class, $root->servers[0]);
+
+        $this->assertInstanceOf(Server::class, $root->servers[1]);
 
         $this->assertInstanceOf(
             Schema::class,
-            $openApi->components->schemas->Order->properties->id
+            $root->components->schemas->Order->properties->id
         );
 
         $this->assertSame(

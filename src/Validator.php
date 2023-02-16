@@ -36,7 +36,7 @@ class Validator extends ValidatorBase
                 (new FileUriFactory())->create($path)
             );
 
-            $id = $schemaDocument->{'$id'};
+            $id = $schemaDocument->getRoot()->{'$id'};
 
             if (!is_numeric($key) && $key != $id) {
                 /** @throw alcamo::exception::DataValidationFailed if the key
@@ -45,14 +45,15 @@ class Validator extends ValidatorBase
                 throw (new DataValidationFailed())->setMessageContext(
                     [
                         'inData' => $schemaDocument,
-                        'atUri' => $schemaDocument->getUri('$id'),
+                        'atUri' => $schemaDocument->getBaseUri('$id'),
                         'extraMessage' =>
                         "schema id \"$id\" differs from key \"$key\""
                     ]
                 );
             }
 
-            $validator->resolver()->registerRaw($schemaDocument, $id);
+            $validator->resolver()
+                ->registerRaw($schemaDocument->getRoot(), $id);
         }
 
         return $validator;

@@ -2,10 +2,10 @@
 
 namespace alcamo\openapi;
 
-use alcamo\json\{JsonDocumentInterface, TypedNodeDocumentTrait};
+use alcamo\json\TypedNodeDocument;
 
 /// Document made of OpenAPI nodes
-class JsonDocument extends OpenApiNode implements JsonDocumentInterface
+class JsonDocument extends TypedNodeDocument
 {
-    use TypedNodeDocumentTrait;
+    public const NODE_CLASS = OpenApiNode::class;
 }
