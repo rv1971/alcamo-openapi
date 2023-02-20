@@ -4,7 +4,6 @@ namespace alcamo\openapi;
 
 use alcamo\exception\{AbsoluteUriNeeded, DataValidationFailed};
 use alcamo\json\{
-    JsonDocumentFactory,
     JsonNode,
     RecursiveWalker,
     ReferenceResolver
