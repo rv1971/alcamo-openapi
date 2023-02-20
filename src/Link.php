@@ -30,7 +30,7 @@ class Link extends OpenApiNode
                         ]
                     );
                 }
-            } elseif (isset($this->operationRef)) {
+            } else {
                 if ($this->operationRef[0] == '#') {
                     /** @throw alcamo::json::exception::NodeNotFound if there
                      *  is no node for the given local URL. */

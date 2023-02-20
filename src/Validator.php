@@ -45,7 +45,7 @@ class Validator extends ValidatorBase
                 throw (new DataValidationFailed())->setMessageContext(
                     [
                         'inData' => $schemaDocument,
-                        'atUri' => $schemaDocument->getBaseUri('$id'),
+                        'atUri' => $schemaDocument->getBaseUri(),
                         'extraMessage' =>
                         "schema id \"$id\" differs from key \"$key\""
                     ]

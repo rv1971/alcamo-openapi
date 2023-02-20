@@ -3,15 +3,14 @@
 namespace alcamo\openapi;
 
 use alcamo\exception\{AbsoluteUriNeeded, DataValidationFailed};
-use alcamo\uri\Uri;
 use alcamo\json\{
     JsonDocumentFactory,
     JsonNode,
     RecursiveWalker,
-    ReferenceResolver,
-    TypedNodeDocumentTrait
+    ReferenceResolver
 };
 use alcamo\json\exception\NodeNotFound;
+use alcamo\uri\Uri;
 use Opis\JsonSchema\Uri as OpisUri;
 use Psr\Http\Message\UriInterface;
 
@@ -27,6 +26,8 @@ use Psr\Http\Message\UriInterface;
 class OpenApi extends JsonDocument
 {
     public const NODE_CLASS = OpenApiRootNode::class;
+
+    public const DOCUMENT_FACTORY_CLASS = JsonDocumentFactory::class;
 
     /// Base URI used in IDs of bundled schemas
     public const SCHEMA_BASE_URI =
@@ -61,10 +62,6 @@ class OpenApi extends JsonDocument
      * This constant may be refined in child classes.
      */
     public const SCHEMAS = [];
-
-    private $resolver_; ///< ReferenceResolver
-
-    private $documentFactory_; ///< DocumentFactory
 
     /// Class-independent validator
     private static $globalValidator_;
@@ -122,7 +119,7 @@ class OpenApi extends JsonDocument
      * - validates the examples in the document
      */
     public function __construct(
-        ?JsonNode $root,
+        $jsonData,
         UriInterface $baseUri,
         $resolver = ReferenceResolver::RESOLVE_EXTERNAL
     ) {
@@ -134,23 +131,14 @@ class OpenApi extends JsonDocument
                 ->setMessageContext([ 'uri' => $baseUri ]);
         }
 
-        $this->resolver_ = $resolver instanceof ReferenceResolver
-            ? $resolver
-            : new ReferenceResolver($resolver);
+        parent::__construct($jsonData, $baseUri);
 
-        parent::__construct($root, $baseUri);
-    }
-
-    public function setRoot(JsonNode $root): void
-    {
-        $root = $this->resolver_->resolve($root);
-
-        parent::setRoot($root);
+        $this->resolveReferences($resolver);
 
         $this->openApiVersion_ = substr(
-            $root->openapi,
+            $this->getRoot()->openapi,
             0,
-            strrpos($root->openapi, '.')
+            strrpos($this->getRoot()->openapi, '.')
         );
 
         if ($this->openApiVersion_ == '3.0') {
@@ -172,14 +160,17 @@ class OpenApi extends JsonDocument
         $this->validateLinks();
     }
 
-    public function getDocumentFactory(): JsonDocumentFactory
+    public function __clone()
     {
-        if (!isset($this->documentFactory_)) {
-            $this->documentFactory_ =
-                new JsonDocumentFactory(JsonDocument::class);
-        }
+        /* Must be cleared becaus it is filled by Operation::__construct()
+         * which is called while executing __clone(). */
+        $this->operations_ = [];
 
-        return $this->documentFactory_;
+        parent::__clone();
+
+        if (isset($this->validator_)) {
+            $this->validator_ = clone $this->validator_;
+        }
     }
 
     /**
@@ -203,10 +194,8 @@ class OpenApi extends JsonDocument
                 RecursiveWalker::JSON_OBJECTS_ONLY
             ) as $pair
         ) {
-            [ , $node ] = $pair;
-
-            if (isset($node->externalValue)) {
-                $node->resolveExternalValue();
+            if (isset($pair[1]->externalValue)) {
+                $pair[1]->resolveExternalValue();
             }
         }
 
@@ -221,9 +210,9 @@ class OpenApi extends JsonDocument
         ) {
             throw (new DataValidationFailed())->setMessageContext(
                 [
-                    'atUri' => $this->getBaseUri(),
+                    'atUri' => $operation->getUri(),
                     'inData' => $operation,
-                    'extraMessage' => "attept to redefine operation ID \"$operation->operationId\""
+                    'extraMessage' => "attempt to redefine operation ID \"$operation->operationId\""
                 ]
             );
         }
@@ -245,24 +234,22 @@ class OpenApi extends JsonDocument
                 RecursiveWalker::JSON_OBJECTS_ONLY
             ) as $pair
         ) {
-            [ , $node ] = $pair;
-
-            if (!($node instanceof Schema)) {
+            if (!($pair[1] instanceof Schema)) {
                 continue;
             }
 
-            unset($node->{'$comment'});
-            unset($node->{'$id'});
-            unset($node->{'$schema'});
-            unset($node->{'id'});
+            unset($pair[1]->{'$comment'});
+            unset($pair[1]->{'$id'});
+            unset($pair[1]->{'$schema'});
+            unset($pair[1]->{'id'});
         }
     }
 
     protected function validate(): void
     {
-        // deep copy needed because the validator sets defaults
+        // validate clone because the validator sets defaults
         self::getGlobalValidator()->validate(
-            $this->getRoot()->createDeepCopy(),
+            (clone $this)->getRoot(),
             self::OPENAPI_VERSIONS[$this->openApiVersion_]
         );
     }
@@ -275,14 +262,12 @@ class OpenApi extends JsonDocument
                 RecursiveWalker::JSON_OBJECTS_ONLY
             ) as $pair
         ) {
-            [ , $node ] = $pair;
-
-            if (!$node instanceof Link) {
+            if (!$pair[1] instanceof Link) {
                 continue;
             }
 
             /** @throw If not a valid target. */
-            $node->getTarget();
+            $pair[1]->getTarget();
         }
     }
 
@@ -294,7 +279,7 @@ class OpenApi extends JsonDocument
                 RecursiveWalker::JSON_OBJECTS_ONLY
             ) as $pair
         ) {
-            [ , $node ] = $pair;
+            $node = $pair[1];
 
             if (!$node instanceof HasExampleInterface) {
                 continue;
@@ -317,8 +302,7 @@ class OpenApi extends JsonDocument
             } elseif (isset($node->examples) && isset($node->schema)) {
                 foreach ($node->examples as $example) {
                     if (isset($example->{'$ref'})) {
-                        $example = $example->createDeepCopy()
-                            ->resolveReferences();
+                        $example = (clone $example)->resolveReferences();
                     }
 
                     $mediaType = $example->getExternalValueMediaType();

@@ -13,7 +13,7 @@ class ContactTest extends TestCase
      */
     public function testToDcCreator($jsonData, $expectedStmt): void
     {
-        $document = new JsonDocument();
+        $document = new JsonDocument(null);
 
         $contact = new Contact(
             json_decode($jsonData),

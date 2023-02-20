@@ -3,7 +3,6 @@
 namespace alcamo\openapi;
 
 use alcamo\json\{JsonDocument, JsonNode, JsonPtr};
-use Psr\Http\Message\UriInterface;
 
 class Operation extends OpenApiNode
 {

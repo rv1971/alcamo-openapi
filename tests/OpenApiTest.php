@@ -147,7 +147,7 @@ class OpenApiTest extends TestCase
     {
         $this->expectException(DataValidationFailed::class);
         $this->expectExceptionMessage(
-            'attept to redefine operation ID "findPetsByStatus"'
+            'attempt to redefine operation ID "findPetsByStatus"'
         );
 
         $doc = $this->createFromUrl(

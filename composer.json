@@ -20,7 +20,7 @@
     "require": {
         "php": "7.3 - 8.0",
         "alcamo/exception": "^0.1",
-        "alcamo/json": "^0.14",
+        "alcamo/json": "^0.15",
         "alcamo/rdfa": "^0.8",
         "league/commonmark": "^1.6",
         "opis/string": "2.0.2",

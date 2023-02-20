@@ -120,7 +120,7 @@ class Flowchart
 
     protected function collectNodesAndEdges(): void
     {
-        foreach ($this->openApi_->paths as $path) {
+        foreach ($this->openApi_->getRoot()->paths as $path) {
             foreach (static::HTTP_METHODS as $method) {
                 if (isset($path->$method)) {
                     foreach ($path->$method->responses as $response) {

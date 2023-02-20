@@ -43,9 +43,9 @@ class Example extends OpenApiNode
      * @brief Content of target of `externalValue`, if any
      *
      * If the target has the media type `application/json`, the target is
-     * parsed and the result is an OpenApiNode, an array or a simple
-     * type. Otherwise the result is a string with the literal content of the
-     * target.
+     * parsed and the result is an OpenApiNode, an array or a simple type,
+     * each prepared to be inserted as `value` in the current node. Otherwise
+     * the result is a string with the literal content of the target.
      */
     public function getExternalValueContent()
     {
@@ -91,5 +91,12 @@ class Example extends OpenApiNode
 
             unset($this->externalValue);
         }
+    }
+
+    protected function rebase(UriInterface $oldBase): void
+    {
+        parent::rebase($oldBase);
+
+        $this->externalValueUrl_ = false;
     }
 }
