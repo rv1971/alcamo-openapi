@@ -18,85 +18,22 @@ class OpenApi2Dom extends Json2Dom
         $this->converter_ = new CommonMarkConverter();
     }
 
-    public function appendJsonNode(
-        \DOMNode $domNode,
-        JsonNode $jsonNode,
-        string $nsName,
-        string $qName,
-        ?string $origName = null
-    ): void {
-        /** Do not transform JSON objects which are examples. */
-        if ($qName == 'value') {
-            $jsonPtr = $jsonNode->getJsonPtr();
-
-            if ($jsonPtr[count($jsonPtr) - 3] == 'examples') {
-                $this->appendValue(
-                    $domNode,
-                    json_encode($jsonNode, JSON_PRETTY_PRINT),
-                    $nsName,
-                    $qName,
-                    $jsonNode->getJsonPtr(),
-                    $origName
-                );
-
-                return;
-            }
-        }
-
-        parent::appendJsonNode(
-            $domNode,
-            $jsonNode,
-            $nsName,
-            $qName,
-            $origName
-        );
-    }
-
-    public function appendArray(
-        \DOMNode $domNode,
-        array $jsonArray,
-        string $nsName,
-        string $qName,
-        JsonPtr $jsonPtr,
-        ?string $origName = null
-    ): void {
-        /** Do not transform JSON arrays which are examples. */
-        if ($qName == 'value') {
-            if ($jsonPtr[count($jsonPtr) - 3] == 'examples') {
-                $this->appendValue(
-                    $domNode,
-                    json_encode($jsonArray, JSON_PRETTY_PRINT),
-                    $nsName,
-                    $qName,
-                    $jsonPtr,
-                    $origName
-                );
-
-                return;
-            }
-        }
-
-        parent::appendArray(
-            $domNode,
-            $jsonArray,
-            $nsName,
-            $qName,
-            $jsonPtr,
-            $origName
-        );
-    }
-
-    public function appendValue(
+    public function append(
         \DOMNode $domNode,
         $value,
-        string $nsName,
-        string $localName,
         JsonPtr $jsonPtr,
+        ?string $nsName = null,
+        ?string $qName = null,
         ?string $origName = null
     ): void {
-        /** For `description` attributes, convert CommonMark to HTML. */
+        if (!isset($nsName)) {
+            parent::append($domNode, $value, $jsonPtr);
 
-        if ($localName == 'description') {
+            return;
+        }
+
+        /** Convert markdown into HTML. */
+        if ($qName == 'description') {
             $fragment = $domNode->ownerDocument->createDocumentFragment();
 
             /* This approach implies that the namespace prefix `o` is declared
@@ -109,24 +46,40 @@ class OpenApi2Dom extends Json2Dom
              * output in many cases but would make the implementation much
              * more complex. */
             $fragment->appendXML(
-                "<o:$localName xmlns=\"" . static::HTML_NS
+                "<o:$qName xmlns=\"" . static::HTML_NS
                 . '" xmlns:o="' . static::OBJECT_NS . '">'
                 .  $this->converter_->convertToHtml($value)
-                . "</o:$localName>"
+                . "</o:$qName>"
             );
 
-            $this->addAttributes($fragment->firstChild, $value, $jsonPtr, $origName);
 
-            $domNode->appendChild($fragment);
-        } else {
-            parent::appendValue(
-                $domNode,
-                $value,
-                $nsName,
-                $localName,
+            $this->addAttributes(
+                $fragment->firstChild,
                 $jsonPtr,
+                $nsName,
+                $qName,
                 $origName
             );
+
+            $fragment->firstChild->setAttribute('type', 'string');
+
+            $domNode->appendChild($fragment);
+
+            return;
         }
+
+        /** Do not transform JSON nodes which are examples. */
+        if ($qName == 'value') {
+            if ($jsonPtr[count($jsonPtr) - 3] == 'examples') {
+                $value = json_encode($value, JSON_PRETTY_PRINT);
+            }
+        }
+
+        $child = $domNode->ownerDocument->createElementNS($nsName, $qName);
+        $domNode->appendChild($child);
+
+        $this->addAttributes($child, $jsonPtr, $nsName, $qName, $origName);
+
+        parent::append($child, $value, $jsonPtr);
     }
 }

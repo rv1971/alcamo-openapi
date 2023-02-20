@@ -1,44 +1,44 @@
 <?xml version="1.0"?>
 <s:document xmlns="tag:rv1971@web.de,2021:alcamo-json:j2d/object" xmlns:s="tag:rv1971@web.de,2021:alcamo-json:j2d/structure" type="object" xml:base="$(base)">
-  <openapi type="string" jsonPtr="/openapi">3.0.3</openapi>
-  <info type="object" jsonPtr="/info">
-    <title type="string" jsonPtr="/info/title">Minimal OpenAPI document with markup</title>
-    <o:description xmlns="http://www.w3.org/1999/xhtml" xmlns:o="tag:rv1971@web.de,2021:alcamo-json:j2d/object" type="string" jsonPtr="/info/description"><ul>
+  <openapi jsonPtr="/openapi" type="string">3.0.3</openapi>
+  <info jsonPtr="/info" type="object">
+    <title jsonPtr="/info/title" type="string">Minimal OpenAPI document with markup</title>
+    <o:description xmlns="http://www.w3.org/1999/xhtml" xmlns:o="tag:rv1971@web.de,2021:alcamo-json:j2d/object" jsonPtr="/info/description" type="string"><ul>
 <li>
 <a href="https://loremipsum.de/">Lorem ipsum</a> <em>dolor</em> sit <strong>amet,</strong> consetetur <code>sadipscing</code> elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.</li>
 <li>At vero eos et accusam et justo duo dolores et ea rebum.</li>
 </ul>
 <p>Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
 </o:description>
-    <contact type="object" jsonPtr="/info/contact">
-      <email type="string" jsonPtr="/info/contact/email">alice@example.com</email>
+    <contact jsonPtr="/info/contact" type="object">
+      <email jsonPtr="/info/contact/email" type="string">alice@example.com</email>
     </contact>
-    <version type="string" jsonPtr="/info/version">1.0.0</version>
-    <x-dc-identifier type="string" jsonPtr="/info/x-dc-identifier">minimal</x-dc-identifier>
-    <x-dc-created type="string" jsonPtr="/info/x-dc-created">2022-09-12</x-dc-created>
-    <x-dc-modified type="string" jsonPtr="/info/x-dc-modified">2022-09-12</x-dc-modified>
-    <x-dc-language type="string" jsonPtr="/info/x-dc-language">en</x-dc-language>
+    <version jsonPtr="/info/version" type="string">1.0.0</version>
+    <x-dc-identifier jsonPtr="/info/x-dc-identifier" type="string">minimal</x-dc-identifier>
+    <x-dc-created jsonPtr="/info/x-dc-created" type="string">2022-09-12</x-dc-created>
+    <x-dc-modified jsonPtr="/info/x-dc-modified" type="string">2022-09-12</x-dc-modified>
+    <x-dc-language jsonPtr="/info/x-dc-language" type="string">en</x-dc-language>
   </info>
-  <externalDocs type="object" jsonPtr="/externalDocs">
-    <o:description xmlns="http://www.w3.org/1999/xhtml" xmlns:o="tag:rv1971@web.de,2021:alcamo-json:j2d/object" type="string" jsonPtr="/externalDocs/description"><p>Githib repository</p>
+  <externalDocs jsonPtr="/externalDocs" type="object">
+    <o:description xmlns="http://www.w3.org/1999/xhtml" xmlns:o="tag:rv1971@web.de,2021:alcamo-json:j2d/object" jsonPtr="/externalDocs/description" type="string"><p>Githib repository</p>
 </o:description>
-    <url type="string" jsonPtr="/externalDocs/url">https://github.com/rv1971/alcamo-openapi</url>
+    <url jsonPtr="/externalDocs/url" type="string">https://github.com/rv1971/alcamo-openapi</url>
   </externalDocs>
-  <paths type="object" jsonPtr="/paths"/>
-  <components type="object" jsonPtr="/components">
-    <examples type="object" jsonPtr="/components/examples">
-      <foo type="object" jsonPtr="/components/examples/foo">
-        <summary type="string" jsonPtr="/components/examples/foo/summary">Foo</summary>
-        <o:description xmlns="http://www.w3.org/1999/xhtml" xmlns:o="tag:rv1971@web.de,2021:alcamo-json:j2d/object" type="string" jsonPtr="/components/examples/foo/description"><p>At vero eos et <em>accusam</em> et justo duo dolores et ea rebum.</p>
+  <paths jsonPtr="/paths" type="object"/>
+  <components jsonPtr="/components" type="object">
+    <examples jsonPtr="/components/examples" type="object">
+      <foo jsonPtr="/components/examples/foo" type="object">
+        <summary jsonPtr="/components/examples/foo/summary" type="string">Foo</summary>
+        <o:description xmlns="http://www.w3.org/1999/xhtml" xmlns:o="tag:rv1971@web.de,2021:alcamo-json:j2d/object" jsonPtr="/components/examples/foo/description" type="string"><p>At vero eos et <em>accusam</em> et justo duo dolores et ea rebum.</p>
 </o:description>
-        <value type="string" jsonPtr="/components/examples/foo/value">{
+        <value jsonPtr="/components/examples/foo/value" type="string">{
     "e": 2.71,
     "pi": 3.14
 }</value>
       </foo>
-      <bar type="object" jsonPtr="/components/examples/bar">
-        <summary type="string" jsonPtr="/components/examples/bar/summary">Bar</summary>
-        <value type="string" jsonPtr="/components/examples/bar/value">[
+      <bar jsonPtr="/components/examples/bar" type="object">
+        <summary jsonPtr="/components/examples/bar/summary" type="string">Bar</summary>
+        <value jsonPtr="/components/examples/bar/value" type="string">[
     "baz",
     "qux"
 ]</value>
