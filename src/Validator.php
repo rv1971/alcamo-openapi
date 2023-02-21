@@ -5,7 +5,11 @@ namespace alcamo\openapi;
 use alcamo\exception\DataValidationFailed;
 use alcamo\uri\FileUriFactory;
 use alcamo\json\{SchemaDocumentFactory, JsonNode};
-use Opis\JsonSchema\{Validator as ValidatorBase, ValidationResult};
+use Opis\JsonSchema\{
+    SchemaLoader,
+    Validator as ValidatorBase,
+    ValidationResult
+};
 use Opis\JsonSchema\Errors\ErrorFormatter;
 
 /**
@@ -57,6 +61,15 @@ class Validator extends ValidatorBase
         }
 
         return $validator;
+    }
+
+    public function __construct(
+        ?SchemaLoader $loader = null,
+        int $max_errors = 1
+    ) {
+        parent::__construct($loader, $max_errors);
+
+        $this->resolver()->registerPrefix('file://', '');
     }
 
     /**

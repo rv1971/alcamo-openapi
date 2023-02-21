@@ -132,7 +132,9 @@ class OpenApi extends JsonDocument
 
         parent::__construct($jsonData, $baseUri);
 
-        $this->resolveReferences($resolver);
+        if (isset($resolver)) {
+            $this->resolveReferences($resolver);
+        }
 
         $this->openApiVersion_ = substr(
             $this->getRoot()->openapi,

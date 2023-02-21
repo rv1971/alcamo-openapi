@@ -3,9 +3,39 @@
 namespace alcamo\openapi;
 
 use alcamo\exception\{AbsoluteUriNeeded, DataValidationFailed, SyntaxError};
+use alcamo\json\{JsonReferenceNode, ReferenceResolver};
 use alcamo\json\exception\NodeNotFound;
 use alcamo\uri\FileUriFactory;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\UriInterface;
+
+class MyReferenceResolver extends ReferenceResolver
+{
+    protected function resolveExternalRef(
+        JsonReferenceNode $node,
+        ?int &$action
+    ) {
+        if (substr($node->{'$ref'}, -7) != 'Id.json') {
+            return parent::resolveExternalRef($node, $action);
+        }
+
+        return $node;
+    }
+}
+
+class MyOpenApi extends OpenApi
+{
+    public function __construct(
+        $jsonData,
+        UriInterface $baseUri
+    ) {
+        parent::__construct(
+            $jsonData,
+            $baseUri,
+            new MyReferenceResolver(ReferenceResolver::RESOLVE_EXTERNAL)
+        );
+    }
+}
 
 class OpenApiTest extends TestCase
 {
@@ -20,13 +50,15 @@ class OpenApiTest extends TestCase
         $factory = new OpenApiFactory();
 
         $openApi = $factory->createFromUrl(
-            (new FileUriFactory())->create(self::OPENAPI_FILENAME)
+            (new FileUriFactory())->create(self::OPENAPI_FILENAME),
+            MyOpenApi::class
         );
-
 
         $this->assertInstanceOf(OpenApi::class, $openApi);
 
         $root = $openApi->getRoot();
+
+#        echo $root->toJsonText(JSON_PRETTY_PRINT);
 
         $this->assertInstanceOf(Info::class, $root->info);
 

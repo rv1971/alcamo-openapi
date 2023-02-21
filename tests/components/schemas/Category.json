@@ -4,10 +4,7 @@
     "$comment": "Lorem ipsum",
     "type": "object",
     "properties": {
-        "id": {
-            "type": "integer",
-            "format": "int64"
-        },
+        "id": { "$ref": "Id.json" },
         "name": {
             "type": "string"
         }
