@@ -10,8 +10,9 @@ class Link extends OpenApiNode
     private $target_; /// Operation
 
     public const CLASS_MAP = [
-        'server' => Server::class,
-        '*'      => OpenApiNode::class // for extensions
+        'server'           => Server::class,
+        'x-graphviz-hints' => GraphvizHints::class,
+        '*'                => OpenApiNode::class // for extensions
     ];
 
     public function getTarget(): Operation

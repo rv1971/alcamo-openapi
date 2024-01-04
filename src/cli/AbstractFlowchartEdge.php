@@ -18,6 +18,8 @@ abstract class AbstractFlowchartEdge extends AbstractFlowchartStmt
 
         parent::__construct($flowchart, $id);
 
+        $flowchart->addEdge($this);
+
         $this->fromNode_ = $fromNode;
         $this->toNode_ = $toNode;
 
@@ -42,8 +44,11 @@ abstract class AbstractFlowchartEdge extends AbstractFlowchartStmt
         return $this->label_;
     }
 
-    public function createDotCode(): string
+    public function createDotCodeFromAttrs(array $attrs): string
     {
-        return "{$this->fromNode_->getId()} -> {$this->toNode_->getId()}";
+        return "{$this->fromNode_->getId()} -> {$this->toNode_->getId()}"
+            . $this->createDotAttrs(
+                $attrs + [ 'id' => $this->getId() ]
+            );
     }
 }

@@ -66,39 +66,14 @@ class Flowchart
         return $this->edges_;
     }
 
-    public function addSpecialNodes(): void
+    public function addNode(AbstractFlowchartNode $node): void
     {
-        $startNode = new SpecialFlowchartNode($this, 'START');
-        $startNodeId = $startNode->getId();
+        $this->nodes_[$node->getId()] = $node;
+    }
 
-        $endNode = new SpecialFlowchartNode($this, 'END');
-        $endNodeId = $endNode->getId();
-
-        $this->nodes_[$startNodeId] = $startNode;
-
-        $this->nodes_[$endNodeId] = $endNode;
-
-        foreach ($this->nodes_ as $id => $node) {
-            if ($node instanceof OperationFlowchartNode) {
-                if (!$node->getInEdges()) {
-                    $edge = new SpecialFlowchartEdge(
-                        $this,
-                        $startNode,
-                        $node
-                    );
-
-                    $this->edges_[$edge->getId()] = $edge;
-                } elseif (!$node->getOutEdges()) {
-                    $edge = new SpecialFlowchartEdge(
-                        $this,
-                        $node,
-                        $endNode
-                    );
-
-                    $this->edges_[$edge->getId()] = $edge;
-                }
-            }
-        }
+    public function addEdge(AbstractFlowchartEdge $edge): void
+    {
+        $this->edges_[$edge->getId()] = $edge;
     }
 
     public function createDotCode(?string $include = null): string
@@ -122,80 +97,112 @@ class Flowchart
     {
         foreach ($this->openApi_->getRoot()->paths as $path) {
             foreach (static::HTTP_METHODS as $method) {
-                if (isset($path->$method)) {
-                    foreach ($path->$method->responses as $response) {
-                        if (isset($response->links)) {
-                            $fromOperation = $path->$method;
+                if (!isset($path->$method)) {
+                    continue;
+                }
 
-                            if (
-                                isset($fromOperation->{'x-graphviz-hints'})
-                                && isset($fromOperation->{'x-graphviz-hints'}->ignore)
-                                && $fromOperation->{'x-graphviz-hints'}->ignore
-                            ) {
-                                continue;
-                            }
-
-                            $fromOperationPtr =
-                                (string)$fromOperation->getJsonPtr();
-
-                            $fromNode =
-                                $this->nodes_[$fromOperationPtr] ?? null;
-
-                            if (!isset($fromNode)) {
-                                $fromNode = new OperationFlowchartNode(
-                                    $this,
-                                    $fromOperation
-                                );
-
-                                $this->nodes_[$fromOperationPtr] = $fromNode;
-                            }
-
-                            foreach ($response->links as $link) {
-                                if (isset($link->operationRef)) {
-                                    $toOperationPtr =
-                                        ltrim($link->operationRef, '#');
-                                    $toOperation = $this->openApi_->getNode(
-                                        JsonPtr::newFromString($toOperationPtr)
-                                    );
-                                } else {
-                                    $toOperation = $this->openApi_
-                                        ->getOperation($link->operationId);
-                                    $toOperationPtr =
-                                        (string)$toOperation->getJsonPtr();
-                                }
-
-                                if (
-                                    isset($toOperation->{'x-graphviz-hints'})
-                                    && isset($toOperation->{'x-graphviz-hints'}->ignore)
-                                    && $toOperation->{'x-graphviz-hints'}->ignore
-                                ) {
-                                    continue;
-                                }
-
-                                $toNode =
-                                    $this->nodes_[$toOperationPtr] ?? null;
-
-                                if (!isset($toNode)) {
-                                    $toNode = new OperationFlowchartNode(
-                                        $this,
-                                        $toOperation
-                                    );
-
-                                    $this->nodes_[$toOperationPtr] = $toNode;
-                                }
-
-                                $edge = new LinkFlowchartEdge(
-                                    $this,
-                                    $fromNode,
-                                    $toNode,
-                                    $response,
-                                    $link
-                                );
-
-                                $this->edges_[$edge->getId()] = $edge;
-                            }
-                        }
+                foreach ($path->$method->responses as $response) {
+                    if (!isset($response->links)) {
+                        continue;
                     }
+
+                    $fromOperation = $path->$method;
+
+                    if (
+                        isset($fromOperation->{'x-graphviz-hints'})
+                        && $fromOperation->{'x-graphviz-hints'}
+                            ->hasFlag('ignore')
+                    ) {
+                        continue;
+                    }
+
+                    $fromNode =
+                        $this->nodes_[
+                            OperationFlowchartNode::jsonPtr2Id(
+                                $fromOperation->getJsonPtr()
+                            )
+                        ]
+                        ?? null;
+
+                    if (!isset($fromNode)) {
+                        $fromNode = new OperationFlowchartNode(
+                            $this,
+                            $fromOperation
+                        );
+                    }
+
+                    foreach ($response->links as $link) {
+                        if (isset($link->operationRef)) {
+                            $toOperationPtr = JsonPtr::newFromString(
+                                ltrim($link->operationRef, '#')
+                            );
+                            $toOperation =
+                                $this->openApi_->getNode($toOperationPtr);
+                        } else {
+                            $toOperation = $this->openApi_
+                                ->getOperation($link->operationId);
+                            $toOperationPtr = $toOperation->getJsonPtr();
+                        }
+
+                        if (
+                            isset($toOperation->{'x-graphviz-hints'})
+                            && $toOperation->{'x-graphviz-hints'}
+                                ->hasFlag('ignore')
+                        ) {
+                            continue;
+                        }
+
+                        $toNode =
+                            $this->nodes_[
+                                OperationFlowchartNode::jsonPtr2Id(
+                                    $toOperationPtr
+                                )
+                            ]
+                            ?? null;
+
+                        if (!isset($toNode)) {
+                            $toNode = new OperationFlowchartNode(
+                                $this,
+                                $toOperation
+                            );
+                        }
+
+                        $edge = new LinkFlowchartEdge(
+                            $this,
+                            $fromNode,
+                            $toNode,
+                            $link
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    public function addSpecialNodes(): void
+    {
+        $startNode = new SpecialFlowchartNode($this, 'START');
+
+        $endNode = new SpecialFlowchartNode($this, 'END');
+
+        foreach ($this->nodes_ as $node) {
+            if ($node instanceof OperationFlowchartNode) {
+                $hints = $node->getHints();
+
+                if (
+                    !$node->getInEdges()
+                    || isset($hints->{'start-edge-label'})
+                    || isset($hints) && $hints->hasFlag('start-node')
+                ) {
+                    $edge = new SpecialFlowchartEdge($this, $startNode, $node);
+                }
+
+                if (
+                    !$node->getOutEdges()
+                    || isset($hints->{'end-edge-label'})
+                    || isset($hints) && $hints->hasFlag('end-node')
+                ) {
+                    $edge = new SpecialFlowchartEdge($this, $node, $endNode);
                 }
             }
         }

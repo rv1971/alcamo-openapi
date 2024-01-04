@@ -4,6 +4,11 @@ namespace alcamo\openapi\cli;
 
 abstract class AbstractFlowchartStmt
 {
+    public static function name2Id(string $name): string
+    {
+        return preg_replace('/[^0-9_a-z]/', '_', strtolower($name));
+    }
+
     private $flowchart_; ///< Flowchart
     private $id_;      ///< string
 
@@ -21,11 +26,6 @@ abstract class AbstractFlowchartStmt
     public function getId(): string
     {
         return $this->id_;
-    }
-
-    public function name2Id(string $name): string
-    {
-        return preg_replace('/[^0-9_a-z]/', '_', strtolower($name));
     }
 
     public function createDotAttrs(array $attrs): ?string

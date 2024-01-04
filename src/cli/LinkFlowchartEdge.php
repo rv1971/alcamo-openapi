@@ -2,22 +2,25 @@
 
 namespace alcamo\openapi\cli;
 
-use alcamo\openapi\{Link, Response};
+use alcamo\openapi\{GraphvizHints, Link, Response};
 
 class LinkFlowchartEdge extends AbstractFlowchartEdge
 {
-    private $response_; ///< ?Response
-    private $link_;     ///< ?Link
-    private $hints_;     ///< JsonNode|stdClass
+    private $link_;  ///< ?Link
+    private $hints_; ///< GraphvizHints
 
     public function __construct(
         Flowchart $flowchart,
         OperationFlowchartNode $fromNode,
         OperationFlowchartNode $toNode,
-        Response $response,
         Link $link
     ) {
-        $this->hints_ = $link->{'x-graphviz-hints'} ?? (object)[];
+        $this->hints_ = $link->{'x-graphviz-hints'}
+            ?? new GraphvizHints(
+                (object)[],
+                $link->getOwnerDocument(),
+                $link->getJsonPtr()->appendSegment('x-graphviz-hints')
+            );
 
         if (
             !($flowchart->getOptions() & Flowchart::NO_EDGE_LABELS)
@@ -30,13 +33,7 @@ class LinkFlowchartEdge extends AbstractFlowchartEdge
 
         parent::__construct($flowchart, $fromNode, $toNode, $label);
 
-        $this->response_ = $response;
         $this->link_ = $link;
-    }
-
-    public function getResponse(): Response
-    {
-        return $this->response_;
     }
 
     public function getLink(): Link
@@ -46,19 +43,18 @@ class LinkFlowchartEdge extends AbstractFlowchartEdge
 
     public function createDotCode(?string $baseUrl = null): string
     {
-        $attrs = [
-            'id' => $this->getId(),
-            'class' => 'link-edge'
-        ];
+        $attrs = [ 'class' => 'link-edge' ];
 
-        if ($this->getLabel()) {
-            $attrs['label'] = $this->getLabel();
+        $label = $this->hints_->label ?? $this->getLabel();
+
+        if ($label) {
+            $attrs['label'] = $label;
         }
 
         if (isset($this->hints_->class)) {
             $attrs['class'] .= ' ' . $this->hints_->class;
         }
 
-        return parent::createDotCode() . $this->createDotAttrs($attrs);
+        return $this->createDotCodeFromAttrs($attrs);
     }
 }
