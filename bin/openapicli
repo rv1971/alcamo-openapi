@@ -1,8 +1,0 @@
-#!/usr/bin/env php
-<?php
-
-namespace alcamo\openapi\cli;
-
-include $_composer_autoload_path ?? __DIR__ . '/../vendor/autoload.php';
-
-(new OpenApiCli())->process();
