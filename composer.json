@@ -19,8 +19,8 @@
     ],
     "require": {
         "php": "7.3 - 8.0",
-        "alcamo/json": "^0.16",
-        "alcamo/rdfa": "^0.8",
+        "alcamo/json": "^0.17",
+        "alcamo/rdfa": "^0.9",
         "league/commonmark": "^1.6",
         "opis/string": "2.0.2",
         "opis/uri": "1.1.1",

@@ -17,7 +17,7 @@ class Info extends OpenApiNode
         'https://github.com/OAI/OpenAPI-Specification/blob/main/versions/%s.md';
 
     /// RDFa data to include always
-    public const DEFAULT_RDFA_DATA = [ 'dc:type' => 'Text' ];
+    public const DEFAULT_RDFA_DATA = [ 'dc:type' => [ 'dc:type', 'Text' ] ];
 
     /// RdfaData obtained from this node
     private $rdfaData_;
@@ -28,21 +28,24 @@ class Info extends OpenApiNode
             $openApiVersion = $this->getParent()->openapi;
 
             $rdfaProps = [
-                'dc:title' => $this->title,
-                'owl:versionInfo' => $this->version,
-                'dc:conformsTo' => new RdfaNode(
-                    sprintf(
-                        self::OPEN_API_VERSION_URI_FORMAT,
-                        $openApiVersion
-                    ),
-                    RdfaData::newFromIterable(
-                        [ 'dc:title' => "OpenAPI $openApiVersion" ]
+                [ 'dc:title', $this->title ],
+                [ 'owl:versionInfo', $this->version ],
+                [
+                    'dc:conformsTo',
+                    new RdfaNode(
+                        sprintf(
+                            self::OPEN_API_VERSION_URI_FORMAT,
+                            $openApiVersion
+                        ),
+                        RdfaData::newFromIterable(
+                            [ [ 'dc:title', "OpenAPI $openApiVersion" ] ]
+                        )
                     )
-                )
+                ]
             ];
 
             if (isset($this->contact)) {
-                $rdfaProps['dc:creator'] = $this->contact->toDcCreator();
+                $rdfaProps[] = [ 'dc:creator', $this->contact->toDcCreator() ];
             }
 
             $this->rdfaData_ = RdfaData::newFromIterable(
@@ -53,7 +56,7 @@ class Info extends OpenApiNode
 
             foreach ($this as $prop => $value) {
                 if (substr($prop, 0, 5) == 'x-dc-') {
-                    $rdfaProps['dc:' . substr($prop, 5)] = $value;
+                    $rdfaProps[] = ['dc:' . substr($prop, 5), $value ];
                 }
             }
 

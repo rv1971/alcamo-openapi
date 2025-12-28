@@ -40,34 +40,40 @@ class InfoTest extends TestCase
             [
                 $minimal,
                 [
-                    'dc:title' => 'Minimal OpenAPI document',
-                    'owl:versionInfo' => '1.0.0',
-                    'dc:conformsTo' => new Node(
-                        'https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.3.md',
-                        RdfaData::newFromIterable(
-                            [ 'dc:title' => 'OpenAPI 3.0.3' ]
+                    [ 'dc:title', 'Minimal OpenAPI document' ],
+                    [ 'owl:versionInfo', '1.0.0' ],
+                    [
+                        'dc:conformsTo',
+                        new Node(
+                            'https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.3.md',
+                            RdfaData::newFromIterable(
+                                [ [ 'dc:title', 'OpenAPI 3.0.3' ] ]
+                            )
                         )
-                    ),
-                    'dc:type' => 'Text'
+                    ],
+                    [ 'dc:type', 'Text' ]
                 ]
             ],
             [
                 $minimal31,
                 [
-                    'dc:title' => 'Minimal OpenAPI 3.1 document',
-                    'owl:versionInfo' => '1.2.3',
-                    'dc:conformsTo' => new Node(
-                        'https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md',
-                        RdfaData::newFromIterable(
-                            [ 'dc:title' => 'OpenAPI 3.1.0' ]
+                    [ 'dc:title', 'Minimal OpenAPI 3.1 document' ],
+                    [ 'owl:versionInfo', '1.2.3' ],
+                    [
+                        'dc:conformsTo',
+                        new Node(
+                            'https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md',
+                            RdfaData::newFromIterable(
+                                [ [ 'dc:title', 'OpenAPI 3.1.0' ] ]
+                            )
                         )
-                    ),
-                    'dc:type' => 'Text',
-                    'dc:identifier' => 'minimal-3.1',
-                    'dc:created' => '2021-10-04Z',
-                    'dc:modified' => '2021-10-04Z',
-                    'dc:language' => 'en',
-                    'dc:creator' => new Node('mailto:bob@example.com')
+                    ],
+                    [ 'dc:type', 'Text' ],
+                    [ 'dc:identifier', 'minimal-3.1' ],
+                    [ 'dc:created', '2021-10-04Z' ],
+                    [ 'dc:modified', '2021-10-04Z' ],
+                    [ 'dc:language', 'en' ],
+                    [ 'dc:creator', new Node('mailto:bob@example.com') ]
                 ]
             ]
         ];

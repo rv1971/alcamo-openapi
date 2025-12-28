@@ -15,7 +15,7 @@ class Contact extends OpenApiNode
                         $this->url,
                         isset($this->name)
                         ? RdfaData::newFromIterable(
-                            [ 'dc:title' => $this->name ]
+                            [ [ 'dc:title', $this->name ] ]
                         )
                         : null
                     )
@@ -27,7 +27,7 @@ class Contact extends OpenApiNode
                         "mailto:$this->email",
                         isset($this->name)
                         ? RdfaData::newFromIterable(
-                            [ 'dc:title' => $this->name ]
+                            [ [ 'dc:title', $this->name ] ]
                         )
                         : null
                     )

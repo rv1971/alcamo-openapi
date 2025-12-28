@@ -39,7 +39,7 @@ class ContactTest extends TestCase
                 new DcCreator(
                     new Node(
                         'https://alice.example.info',
-                        RdfaData::newFromIterable([ 'dc:title' => 'Alice' ])
+                        RdfaData::newFromIterable([ [ 'dc:title', 'Alice' ] ])
                     )
                 )
             ],
@@ -48,7 +48,7 @@ class ContactTest extends TestCase
                 new DcCreator(
                     new Node(
                         'mailto:bob@example.info',
-                        RdfaData::newFromIterable([ 'dc:title' => 'Bob' ])
+                        RdfaData::newFromIterable([ [ 'dc:title', 'Bob' ] ])
                     )
                 )
             ],
@@ -57,7 +57,7 @@ class ContactTest extends TestCase
                 new DcCreator(
                     new Node(
                         'https://bob.example.info',
-                        RdfaData::newFromIterable([ 'dc:title' => 'Bob' ])
+                        RdfaData::newFromIterable([ [ 'dc:title', 'Bob' ] ])
                     )
                 )
             ],
