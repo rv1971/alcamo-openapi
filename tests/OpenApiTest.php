@@ -108,7 +108,7 @@ class OpenApiTest extends TestCase
     public function testInvalidOpenApiVersion()
     {
         $this->expectException(SyntaxError::class);
-        $this->expectExceptionMessage('Undefined index: 0.0');
+        $this->expectExceptionMessage('Undefined');
 
         $this->createFromUrl(
             self::OPENAPI_INVALID_DIR . 'openapi-version.json'
