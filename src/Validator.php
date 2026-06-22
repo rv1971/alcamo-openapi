@@ -7,7 +7,7 @@ use alcamo\uri\FileUriFactory;
 use alcamo\json\{SchemaDocumentFactory, JsonNode};
 use Opis\JsonSchema\{
     SchemaLoader,
-    Validator as ValidatorBase,
+    Validator as BaseValidator,
     ValidationResult
 };
 use Opis\JsonSchema\Errors\ErrorFormatter;
@@ -20,7 +20,7 @@ use Opis\JsonSchema\Errors\ErrorFormatter;
  * Opis packages are needed to make Opis run on Cygwin. I would avoid to make
  * more packages depend on these forks.
  */
-class Validator extends ValidatorBase
+class Validator extends BaseValidator
 {
     /**
      * @param $schemas Filesystem paths to schema files. Each schema file must
