@@ -48,5 +48,15 @@
             "phpcbf --standard=PSR12 -p -s src",
             "phpcbf --standard=PSR12 -p -s --exclude=PSR1.Classes.ClassDeclaration,PSR1.Files.SideEffects tests"
         ]
+    },
+    "config": {
+        "policy": {
+	    "advisories": {
+                "ignore-id": {
+		    "PKSA-rqc2-tcc6-nc79": "Tolerated until migration to PHP8",
+		    "PKSA-fndg-qryc-dyc9": "Tolerated until migration to PHP8"
+		}
+	    }
+        }
     }
 }
